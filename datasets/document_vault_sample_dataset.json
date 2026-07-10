@@ -1,0 +1,326 @@
+{
+  "folders": [
+    {
+      "id": "Folder_Legal_Contracts",
+      "docType": "Folder",
+      "name": "Legal & Contracts",
+      "parentId": null,
+      "ownerId": "legal-admin@acme-corp.com",
+      "tenantId": "acme-corp",
+      "color": "#4F46E5",
+      "icon": "briefcase",
+      "createdAt": "2026-01-10T09:00:00Z",
+      "updatedAt": "2026-01-10T09:00:00Z"
+    },
+    {
+      "id": "Folder_Financial_Audits",
+      "docType": "Folder",
+      "name": "Financial Records & Audits",
+      "parentId": null,
+      "ownerId": "finance-lead@acme-corp.com",
+      "tenantId": "acme-corp",
+      "color": "#059669",
+      "icon": "dollarsign",
+      "createdAt": "2026-01-11T10:00:00Z",
+      "updatedAt": "2026-01-11T10:00:00Z"
+    },
+    {
+      "id": "Folder_HR_Operations",
+      "docType": "Folder",
+      "name": "HR & Operations",
+      "parentId": null,
+      "ownerId": "hr-manager@acme-corp.com",
+      "tenantId": "acme-corp",
+      "color": "#D97706",
+      "icon": "person.2",
+      "createdAt": "2026-01-12T11:00:00Z",
+      "updatedAt": "2026-01-12T11:00:00Z"
+    },
+    {
+      "id": "Folder_Technical_Specs",
+      "docType": "Folder",
+      "name": "Technical Specifications",
+      "parentId": null,
+      "ownerId": "tech-architect@acme-corp.com",
+      "tenantId": "acme-corp",
+      "color": "#2563EB",
+      "icon": "cpu",
+      "createdAt": "2026-01-13T12:00:00Z",
+      "updatedAt": "2026-01-13T12:00:00Z"
+    }
+  ],
+  "documents": [
+    {
+      "id": "Doc_Globex_NDA",
+      "docType": "Document",
+      "name": "Globex_NDA_Executed.pdf",
+      "fileExtension": "pdf",
+      "mimeType": "application/pdf",
+      "size": 124500,
+      "folderId": "Folder_Legal_Contracts",
+      "ownerId": "legal-admin@acme-corp.com",
+      "tenantId": "acme-corp",
+      "tags": ["legal", "contract", "nda", "globex", "executed", "confidential"],
+      "status": "published",
+      "version": 1,
+      "textContent": "MUTUAL NON-DISCLOSURE AGREEMENT\nThis Mutual Non-Disclosure Agreement (the 'Agreement') is entered into by and between Acme Corporation, a Delaware corporation ('Acme'), and Globex Corporation, a California corporation ('Globex').\n1. Purpose: The parties wish to explore a potential business relationship under which each party may disclose proprietary and confidential information.\n2. Confidential Information: Includes all technical, business, financial, or other information marked as confidential or that should reasonably be understood to be confidential.\n3. Non-Use and Non-Disclosure: Each party agrees to use the other's confidential information solely for the purpose of evaluating the relationship and to maintain its confidentiality using reasonable care.\n4. Term: The obligations of confidentiality shall survive for 3 years from the date of disclosure.\n5. Governing Law: State of New York.\nExecuted by John Doe (Acme President) and Jane Smith (Globex VP Operations) on May 12, 2026.",
+      "summary": "Executed Mutual Non-Disclosure Agreement (NDA) between Acme Corp and Globex Corp signed on May 12, 2026. Governing law is New York. Three-year term for confidentiality.",
+      "contentCategory": "legal",
+      "processingStatus": "complete",
+      "ocrProcessed": true,
+      "custodyId": "Cust_Globex_NDA",
+      "contentHash": "57b3ac156b8cdab1d5506a68a5c317b3ac156b8cdab1d5506a68a5c317b3ac15",
+      "source": {
+        "type": "filePicker",
+        "capturedBy": "legal-admin@acme-corp.com",
+        "capturedAt": "2026-05-12T14:32:00Z"
+      },
+      "custodyChain": [
+        {
+          "id": "Event_NDA_Upload",
+          "timestamp": "2026-05-12T14:32:00Z",
+          "actor": "legal-admin@acme-corp.com",
+          "action": "uploaded",
+          "deviceId": "MacBook_Legal_01",
+          "notes": "Original PDF ingested via desktop client."
+        }
+      ],
+      "relatedDocumentIds": [],
+      "isDeleted": false,
+      "hasBlob": true,
+      "createdAt": "2026-05-12T14:32:00Z",
+      "updatedAt": "2026-05-12T14:32:00Z",
+      "searchBoost": 0.0,
+      "feedbackTags": []
+    },
+    {
+      "id": "Doc_Acme_Board_Min_Q1_2026",
+      "docType": "Document",
+      "name": "Q1_2026_Board_Minutes.docx",
+      "fileExtension": "docx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 84200,
+      "folderId": "Folder_Legal_Contracts",
+      "ownerId": "legal-admin@acme-corp.com",
+      "tenantId": "acme-corp",
+      "tags": ["board", "minutes", "q1", "governance", "meeting"],
+      "status": "published",
+      "version": 1,
+      "textContent": "ACME CORPORATION\nMINUTES OF THE Q1 BOARD OF DIRECTORS MEETING\nDate: March 15, 2026\nTime: 10:00 AM EST\nLocation: Corporate Headquarters & Videoconference\nAttendees:\n- John Doe (Chairman of the Board)\n- Sarah Jenkins (CEO)\n- Robert Vance (Independent Director)\n- Emily Watson (Independent Director)\n- Harold Finch (CFO)\n\nProceedings:\n1. Call to Order: Chairman John Doe called the meeting to order. A quorum was declared present.\n2. CEO Report: Sarah Jenkins presented the Q1 performance metrics. Global sales grew by 14% year-over-year, primarily driven by enterprise software subscriptions.\n3. Financial Overview: CFO Harold Finch reviewed Q1 cash flows and balance sheet. Gross margins remained stable at 72.4%. Capital expenditures of $4.2M were approved for server capacity expansion.\n4. New Business: The Board discussed potential strategic acquisition options. Robert Vance proposed forming a special committee to evaluate SaaS acquisitions.\n5. Adjournment: The meeting was adjourned at 12:45 PM EST.",
+      "summary": "Official minutes of Acme Corp's Q1 Board of Directors meeting held on March 15, 2026. Highlights CEO's report of 14% YoY sales growth and CFO's CAPEX approval of $4.2M for server capacity expansion.",
+      "contentCategory": "legal",
+      "processingStatus": "complete",
+      "ocrProcessed": true,
+      "custodyId": "Cust_Q1_Board_Min",
+      "contentHash": "ca9d68a5c317b3ac156b8cdab1d5506a68a5c317b3ac156b8cdab1d5506a68a5c3",
+      "source": {
+        "type": "filePicker",
+        "capturedBy": "legal-admin@acme-corp.com",
+        "capturedAt": "2026-03-16T09:15:00Z"
+      },
+      "custodyChain": [
+        {
+          "id": "Event_Board_Min_Upload",
+          "timestamp": "2026-03-16T09:15:00Z",
+          "actor": "legal-admin@acme-corp.com",
+          "action": "uploaded",
+          "deviceId": "MacBook_Legal_01",
+          "notes": "Ingested draft version for board review."
+        },
+        {
+          "id": "Event_Board_Min_Publish",
+          "timestamp": "2026-03-20T11:00:00Z",
+          "actor": "legal-admin@acme-corp.com",
+          "action": "contentReplaced",
+          "notes": "Approved final version published. Status set to published."
+        }
+      ],
+      "relatedDocumentIds": [],
+      "isDeleted": false,
+      "hasBlob": true,
+      "createdAt": "2026-03-16T09:15:00Z",
+      "updatedAt": "2026-03-20T11:00:00Z",
+      "searchBoost": 0.0,
+      "feedbackTags": []
+    },
+    {
+      "id": "Doc_Q2_Audit_Report_2026",
+      "docType": "Document",
+      "name": "Q2_2026_Audit_Report.pdf",
+      "fileExtension": "pdf",
+      "mimeType": "application/pdf",
+      "size": 256800,
+      "folderId": "Folder_Financial_Audits",
+      "ownerId": "finance-lead@acme-corp.com",
+      "tenantId": "acme-corp",
+      "tags": ["finance", "audit", "compliance", "q2", "balance-sheet"],
+      "status": "published",
+      "version": 1,
+      "textContent": "ACME CORP - INTERNAL FINANCIAL AUDIT REPORT\nQuarter Ending June 30, 2026\nPrepared by: Deloitte & Touche LLP\nExecutive Summary:\nWe have conducted an internal audit of the financial accounts, ledger reconciliations, and transactions of Acme Corp for Q2 2026. Our examination was designed to evaluate internal controls and verify the accuracy of the financial reports.\nAudit Findings:\n- Revenue Reconciliation: Reconciled revenue of $24,850,230 matches invoices and cash deposits with zero material discrepancies.\n- Expense Discrepancies: Discovered minor payroll alignment errors ($1,250) in the European subsidiary which have since been corrected.\n- Internal Controls: General controls over accounts receivable and payable are highly effective. Recommend upgrading the purchase order authorization threshold from $5,000 to $10,000 to improve operational throughput.\nConclusion: Acme Corp's financial statements present fairly, in all material respects, the financial position of the company as of June 30, 2026.",
+      "summary": "Internal financial audit report of Acme Corp for Q2 2026, prepared by Deloitte. Confirms accurate revenue reconciliation of $24.85M and highly effective internal controls.",
+      "contentCategory": "financial",
+      "processingStatus": "complete",
+      "ocrProcessed": true,
+      "custodyId": "Cust_Q2_Audit",
+      "contentHash": "8cdab1d5506a68a5c317b3ac156b8cdab1d5506a68a5c317b3ac156b8cdab1d550",
+      "source": {
+        "type": "filePicker",
+        "capturedBy": "finance-lead@acme-corp.com",
+        "capturedAt": "2026-07-02T15:45:00Z"
+      },
+      "custodyChain": [
+        {
+          "id": "Event_Audit_Upload",
+          "timestamp": "2026-07-02T15:45:00Z",
+          "actor": "finance-lead@acme-corp.com",
+          "action": "uploaded",
+          "deviceId": "iMac_Finance_01",
+          "notes": "Uploaded final signed PDF report from Deloitte."
+        }
+      ],
+      "relatedDocumentIds": [],
+      "isDeleted": false,
+      "hasBlob": true,
+      "createdAt": "2026-07-02T15:45:00Z",
+      "updatedAt": "2026-07-02T15:45:00Z",
+      "searchBoost": 0.0,
+      "feedbackTags": []
+    },
+    {
+      "id": "Doc_IRS_Form_1120_2025",
+      "docType": "Document",
+      "name": "2025_IRS_Form_1120.pdf",
+      "fileExtension": "pdf",
+      "mimeType": "application/pdf",
+      "size": 412000,
+      "folderId": "Folder_Financial_Audits",
+      "ownerId": "finance-lead@acme-corp.com",
+      "tenantId": "acme-corp",
+      "tags": ["tax", "irs", "form-1120", "2025", "financial"],
+      "status": "archived",
+      "version": 1,
+      "textContent": "Form 1120 - U.S. Corporation Income Tax Return (2025)\nAcme Corporation\nEmployer Identification Number (EIN): 12-3456789\nState of Incorporation: Delaware\nGross Receipts or Sales: $84,320,150\nCost of Goods Sold: $21,120,400\nGross Profit: $63,199,750\nTotal Deductions (Salaries, Rent, Taxes, Benefits): $48,150,000\nTaxable Income: $15,049,750\nTotal Tax Liability (21% corporate rate): $3,160,447\nTax Payments and Credits: $3,200,000\nOverpayment / Refund Due: $39,553\nSigned: Harold Finch (CFO) and Prepared by PwC LLP on April 10, 2026.",
+      "summary": "U.S. Corporation Income Tax Return (IRS Form 1120) for Acme Corp for the tax year 2025. Reports gross receipts of $84.3M, taxable income of $15.0M, corporate tax liability of $3.16M, and an overpayment refund of $39.5K.",
+      "contentCategory": "financial",
+      "processingStatus": "complete",
+      "ocrProcessed": true,
+      "custodyId": "Cust_Tax_Form",
+      "contentHash": "17b3ac156b8cdab1d5506a68a5c317b3ac156b8cdab1d5506a68a5c317b3ac156",
+      "source": {
+        "type": "filePicker",
+        "capturedBy": "finance-lead@acme-corp.com",
+        "capturedAt": "2026-04-12T11:20:00Z"
+      },
+      "custodyChain": [
+        {
+          "id": "Event_Tax_Upload",
+          "timestamp": "2026-04-12T11:20:00Z",
+          "actor": "finance-lead@acme-corp.com",
+          "action": "uploaded",
+          "deviceId": "iMac_Finance_01",
+          "notes": "Filing tax copy saved to archive."
+        }
+      ],
+      "relatedDocumentIds": [],
+      "isDeleted": false,
+      "hasBlob": true,
+      "createdAt": "2026-04-12T11:20:00Z",
+      "updatedAt": "2026-04-12T11:20:00Z",
+      "searchBoost": 0.0,
+      "feedbackTags": []
+    },
+    {
+      "id": "Doc_Employee_Handbook_2026",
+      "docType": "Document",
+      "name": "Acme_Employee_Handbook_2026.pdf",
+      "fileExtension": "pdf",
+      "mimeType": "application/pdf",
+      "size": 512000,
+      "folderId": "Folder_HR_Operations",
+      "ownerId": "hr-manager@acme-corp.com",
+      "tenantId": "acme-corp",
+      "tags": ["hr", "employee", "handbook", "policy", "operations", "onboarding"],
+      "status": "published",
+      "version": 1,
+      "textContent": "ACME CORPORATION - EMPLOYEE HANDBOOK\nEdition: 2026\nWelcome to Acme Corp! We are excited to have you on our team.\nCore Policies:\n1. Code of Conduct: Acme is committed to providing a workspace free of harassment and discrimination. All employees must act with integrity, professionalism, and respect.\n2. Work Hours & Remote Work: Our core working hours are 9:00 AM to 5:00 PM in the employee's local timezone. Remote work options are available up to 3 days per week with manager approval.\n3. Leave Policy: Employees receive 20 days of Paid Time Off (PTO), 10 days of sick leave, and 12 paid company holidays annually.\n4. Secure Data Usage: Employees must use company-provided hardware and VPNs when accessing internal networks. Passwords must be updated quarterly.\n5. Benefits: Health, dental, and vision insurance are fully covered. 401(k) retirement matching is provided up to 4% of salary.",
+      "summary": "Employee handbook for Acme Corp (2026 edition). Outlines core codes of conduct, 20 days PTO leave policy, remote work guidelines, data security requirements, and benefits (health insurance, 4% 401k matching).",
+      "contentCategory": "hr",
+      "processingStatus": "complete",
+      "ocrProcessed": true,
+      "custodyId": "Cust_Handbook",
+      "contentHash": "506a68a5c317b3ac156b8cdab1d5506a68a5c317b3ac156b8cdab1d5506a68a5c31",
+      "source": {
+        "type": "filePicker",
+        "capturedBy": "hr-manager@acme-corp.com",
+        "capturedAt": "2026-01-02T09:00:00Z"
+      },
+      "custodyChain": [
+        {
+          "id": "Event_Handbook_Upload",
+          "timestamp": "2026-01-02T09:00:00Z",
+          "actor": "hr-manager@acme-corp.com",
+          "action": "uploaded",
+          "deviceId": "iPad_HR_01",
+          "notes": "Uploaded final approved edition of handbook for all employees."
+        }
+      ],
+      "relatedDocumentIds": [],
+      "isDeleted": false,
+      "hasBlob": true,
+      "createdAt": "2026-01-02T09:00:00Z",
+      "updatedAt": "2026-01-02T09:00:00Z",
+      "searchBoost": 0.0,
+      "feedbackTags": []
+    },
+    {
+      "id": "Doc_CBL_Database_Schema_Spec",
+      "docType": "Document",
+      "name": "CBL_Database_Schema_Spec.txt",
+      "fileExtension": "txt",
+      "mimeType": "text/plain",
+      "size": 15400,
+      "folderId": "Folder_Technical_Specs",
+      "ownerId": "tech-architect@acme-corp.com",
+      "tenantId": "acme-corp",
+      "tags": ["technical", "database", "schema", "couchbase", "spec", "sqlite"],
+      "status": "published",
+      "version": 2,
+      "textContent": "COUCHBASE LITE SYNCED OFFLINE DATABASE SCHEMA SPECIFICATION\nVersion: 2.1\nDocument Type definitions for the DocumentVault database.\n\n1. Collections Structure:\n- `documents`: Stores document metadata and search indexes.\n- `folders`: Stores workspace directory names and hierarchy.\n- `annotations`: Stores annotations, highlights, and reviewer comments.\n- `profile`: User profiles, local settings, and sync credentials.\n\n2. Document Schema definition:\n- `id` (String): Prefix `Doc_` + UUID.\n- `docType` (String): Constant 'Document'.\n- `name` (String): File name with extension.\n- `fileExtension` (String): e.g. 'pdf', 'txt'.\n- `embedding` (Array of 512 Floats): L2 normalized vector embedding of summary/name.\n- `processingStatus` (String): 'pending' | 'extracting' | 'embedding' | 'complete' | 'failed'.\n- `custodyChain` (Array of CustodyEvent): Tracks upload, view, edit events.\n- `isDeleted` (Boolean): Flag for logical deletion / trash bin.\n\n3. Sync Gateway Configuration:\n- Documents are dynamically routed to channels based on tenantId and folderId.\n- Access is controlled by Sync Gateway Javascript function sync().",
+      "summary": "Technical specification of Couchbase Lite offline database schemas, collections, document structures (metadata, embeddings, custody chains), and Sync Gateway routing for DocumentVault.",
+      "contentCategory": "technical",
+      "processingStatus": "complete",
+      "ocrProcessed": true,
+      "custodyId": "Cust_CBL_Schema",
+      "contentHash": "5506a68a5c317b3ac156b8cdab1d5506a68a5c317b3ac156b8cdab1d5506a68a5c3",
+      "source": {
+        "type": "filePicker",
+        "capturedBy": "tech-architect@acme-corp.com",
+        "capturedAt": "2026-02-14T16:00:00Z"
+      },
+      "custodyChain": [
+        {
+          "id": "Event_Schema_Upload_v1",
+          "timestamp": "2026-02-14T16:00:00Z",
+          "actor": "tech-architect@acme-corp.com",
+          "action": "uploaded",
+          "deviceId": "MacBook_Tech_01",
+          "notes": "Ingested v1.0 version."
+        },
+        {
+          "id": "Event_Schema_Upload_v2",
+          "timestamp": "2026-03-01T10:30:00Z",
+          "actor": "tech-architect@acme-corp.com",
+          "action": "contentReplaced",
+          "notes": "Updated to v2.1 including collections and vector index specification."
+        }
+      ],
+      "relatedDocumentIds": [],
+      "isDeleted": false,
+      "hasBlob": true,
+      "createdAt": "2026-02-14T16:00:00Z",
+      "updatedAt": "2026-03-01T10:30:00Z",
+      "searchBoost": 0.0,
+      "feedbackTags": []
+    }
+  ]
+}
