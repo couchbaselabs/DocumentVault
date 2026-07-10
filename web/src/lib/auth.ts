@@ -1,71 +1,53 @@
 /**
- * Authentication and credentials management
+ * Authentication and credentials management for DocumentVault
  */
 
 export interface AuthCredentials {
   email: string;
   password: string;
-  storeId: string;
+  tenantId: string;
 }
 
-const AUTH_STORAGE_KEY = 'retail_auth_credentials';
+const AUTH_STORAGE_KEY = 'documentvault_auth_credentials';
 
 /**
- * Extract App Endpoint from email
- * e.g., "nyc-store-01@supermarket.com" → "supermarket-nyc"
+ * Extract Tenant ID from email domain
+ * e.g., "admin@acme-corp.com" → "acme-corp", "guest@local.com" → "local"
  */
-export function extractAppEndpointFromEmail(email: string): string {
-  const match = email.match(/^([a-zA-Z]+)-store-\d+@/);
-  if (!match) {
-    throw new Error('Invalid email format. Expected format: store-id@supermarket.com');
+export function extractTenantIdFromEmail(email: string): string {
+  const clean = email.trim().toLowerCase();
+  const parts = clean.split('@');
+  if (parts.length !== 2) return 'local';
+  
+  const domain = parts[1];
+  const publicDomains = new Set([
+    'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com', 'me.com'
+  ]);
+  
+  if (publicDomains.has(domain) || domain === 'local.com') {
+    return 'local';
   }
-  return "supermarket-" + match[1].toLowerCase();
+  
+  return domain.split('.')[0];
 }
 
-/**
- * Extract store ID from email
- * e.g., "nyc-store-01@supermarket.com" → "nyc-store-01"
- */
-export function extractStoreIdFromEmail(email: string): string {
-  const match = email.match(/^([a-zA-Z]+-store-\d+)@/);
-  if (!match) {
-    throw new Error('Invalid email format. Expected format: store-id@supermarket.com');
-  }
-  return match[1];
-}
-
-/**
- * Get scope name from store ID
- * e.g., "nyc-store-01" → "NYC-Store", "aa-store-01" → "AA-Store"
- */
-export function getScopeNameFromStoreId(storeId: string): string {
-  const prefix = storeId.split('-')[0].toUpperCase();
-  return `${prefix}-Store`;
-}
-
-/**
- * Get App Services URL from environment variable
- * Returns the URL exactly as configured in .env without any modifications
- */
-export function getAppServicesUrl(): string {
-  const url = import.meta.env.VITE_APP_SERVICES_URL;
-
-  if (!url) {
-    throw new Error('VITE_APP_SERVICES_URL is not configured. Please check your .env file.');
-  }
-
-  return url;
+export function getAppServicesUrl(tenantId: string): string {
+  const isSecure = window.location.protocol === 'https:';
+  const wsProtocol = isSecure ? 'wss:' : 'ws:';
+  const host = window.location.host || 'localhost:8080';
+  
+  return `${wsProtocol}//${host}/sync-gateway/docvault-${tenantId}`;
 }
 
 /**
  * Store credentials securely in sessionStorage
  */
 export function storeCredentials(email: string, password: string): void {
-  const storeId = extractStoreIdFromEmail(email);
+  const tenantId = extractTenantIdFromEmail(email);
   const credentials: AuthCredentials = {
     email,
     password,
-    storeId,
+    tenantId,
   };
   sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(credentials));
 }
@@ -85,13 +67,6 @@ export function getStoredCredentials(): AuthCredentials | null {
 }
 
 /**
- * Retrieve app endpoint
- */
-export function getAppEndpoint(credentials: AuthCredentials): string {
-  return extractAppEndpointFromEmail(credentials.email);
-}
-
-/**
  * Clear stored credentials (logout)
  */
 export function clearCredentials(): void {
@@ -104,4 +79,3 @@ export function clearCredentials(): void {
 export function isAuthenticated(): boolean {
   return getStoredCredentials() !== null;
 }
-

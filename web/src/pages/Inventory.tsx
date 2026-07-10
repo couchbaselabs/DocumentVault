@@ -1,338 +1,332 @@
-import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { useDatabase } from "@/lib/database/DatabaseProvider";
-import type { InventoryItem as InventoryItemType } from "@/lib/database/types";
-import InventoryItem from "@/components/InventoryItem";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SyncStatus } from "@/components/SyncStatus";
-import { OfflineToggle } from "@/components/OfflineToggle";
-import { ArrowLeft, Search, Package2 } from "lucide-react";
-import { DocID, LastWriteWins, type ListenerToken } from "@couchbase/lite-js";
-import { getStoredCredentials, getScopeNameFromStoreId } from "@/lib/auth";
-import { getUILogger } from "@/lib/logging";
+import { FileText, ArrowLeft, Plus, Search, Loader2, Send } from "lucide-react";
+import { useDatabase } from "@/lib/database/DatabaseProvider";
+import { getStoredCredentials } from "@/lib/auth";
 import { convertCBLToPlain } from "@/lib/database/utils";
+import { MutableDocument } from "@couchbase/lite-js";
+import type { VaultDocument, Annotation } from "@/lib/database/types";
+import { toast } from "sonner";
 
 const Inventory = () => {
   const navigate = useNavigate();
   const db = useDatabase();
-  const logger = getUILogger();
-  const [items, setItems] = useState<InventoryItemType[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
   
-  // Track local changes to prevent unnecessary reloads
-  const localChangesRef = React.useRef<Set<string>>(new Set());
+  const [documents, setDocuments] = useState<VaultDocument[]>([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  
+  const [selectedDoc, setSelectedDoc] = useState<VaultDocument | null>(null);
+  const [annotations, setAnnotations] = useState<Annotation[]>([]);
+  const [newAnnotationText, setNewAnnotationText] = useState("");
+  const [submittingAnn, setSubmittingAnn] = useState(false);
 
-  const filteredItems = useMemo(() => {
-    if (!searchQuery) return items;
-    
-    return items.filter(item =>
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.sku.includes(searchQuery) ||
-      item.brand.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [items, searchQuery]);
+  const credentials = getStoredCredentials();
+  const scopeName = credentials?.tenantId || "_default";
+  const docsColName = `${scopeName}.documents` as any;
+  const annotationsColName = `${scopeName}.annotations` as any;
 
-  const groupedItems = useMemo(() => {
-    const grouped: Record<string, InventoryItemType[]> = {};
-    
-    filteredItems.forEach(item => {
-      if (!grouped[item.category]) {
-        grouped[item.category] = [];
-      }
-      grouped[item.category].push(item);
-    });
-
-    // Sort categories alphabetically and items within each category
-    const sortedGrouped: Record<string, InventoryItemType[]> = {};
-    Object.keys(grouped)
-      .sort()
-      .forEach(category => {
-        sortedGrouped[category] = grouped[category].sort((a, b) => a.name.localeCompare(b.name));
-      });
-
-    return sortedGrouped;
-  }, [filteredItems]);
-
-  // Load items from database
-  const loadItems = useCallback(async (showLoadingSpinner = false) => {
+  const loadDocuments = async () => {
     try {
-      if (showLoadingSpinner) {
-        setLoading(true);
-      }
-      logger.debug("Loading inventory from database");
-      
-      // Get collection name from stored credentials
-      const credentials = getStoredCredentials();
-      if (!credentials) {
-        logger.error("No credentials found");
+      setLoading(true);
+      const count = await db.collections[docsColName]?.count() || 0;
+      if (count === 0) {
+        setDocuments([]);
         return;
       }
-      const scopeName = getScopeNameFromStoreId(credentials.storeId);
-      const inventoryCollectionName = `${scopeName}.inventory` as any;
-      
-      // Check collection count first
-      const count = await db.collections[inventoryCollectionName].count();
-      logger.debug("Inventory collection document count", { count });
-      
-      const query = db.createQuery(`SELECT * FROM \`${inventoryCollectionName}\``);
-      const inventoryItems: InventoryItemType[] = [];
-      
-      await query.execute((row) => {
-        // Extract collection data from row
-        const data = row[inventoryCollectionName];
-        if (data) {
-          // Convert Couchbase Lite objects to plain JavaScript values
-          const plainData = convertCBLToPlain(data);
-          inventoryItems.push(plainData as InventoryItemType);
+
+      const query = await db.createQuery(
+        `SELECT META().id, * FROM \`${scopeName}\`.\`documents\` WHERE isDeleted = false ORDER BY name ASC`
+      );
+      const rows = await query.execute();
+      const docs: VaultDocument[] = [];
+      for (const row of rows) {
+        const plain = convertCBLToPlain(row);
+        if (plain.documents) {
+          docs.push(plain.documents as VaultDocument);
         }
-      });
-      
-      logger.info("Inventory items loaded from database", { 
-        count: inventoryItems.length 
-      });
-      setItems(inventoryItems);
-    } catch (error) {
-      logger.error("Error loading inventory", { error });
+      }
+      setDocuments(docs);
+    } catch (err) {
+      console.error("Error loading documents:", err);
     } finally {
-      if (showLoadingSpinner) {
-        setLoading(false);
-      }
-      if (isInitialLoad) {
-        setIsInitialLoad(false);
-      }
-    }
-  }, [db, logger, isInitialLoad]);
-
-  // Load items and set up change listener
-  useEffect(() => {
-    const credentials = getStoredCredentials();
-    if (!credentials) {
-      logger.error("No credentials found");
-      return;
-    }
-    
-    const scopeName = getScopeNameFromStoreId(credentials.storeId);
-    const inventoryCollectionName = `${scopeName}.inventory` as any;
-    const inventoryCollection = db.collections[inventoryCollectionName];
-    
-    // Load items initially with loading spinner
-    void loadItems(true);
-    
-    // Set up change listener for REMOTE changes only
-    // We use a debounce to avoid reloading too frequently during sync
-    logger.debug("Setting up inventory change listener");
-    let reloadTimeout: NodeJS.Timeout | null = null;
-    
-    const changeToken: ListenerToken = inventoryCollection.addChangeListener((changes) => {
-      // Check if any of the changed documents are from remote (not local changes)
-      const changedDocs = Array.from(changes);
-      const hasRemoteChanges = changedDocs.some(docId => !localChangesRef.current.has(String(docId)));
-      
-      if (!hasRemoteChanges) {
-        logger.debug("Skipping reload - all changes are local", {
-          changeCount: changes.size
-        });
-        return;
-      }
-      
-      logger.debug("Remote changes detected in inventory", {
-        changeCount: changes.size,
-        remoteChanges: changedDocs.filter(id => !localChangesRef.current.has(String(id))).length
-      });
-      
-      // Debounce reloads to avoid multiple rapid reloads during sync
-      // This prevents scroll jumps and improves performance
-      // DON'T show loading spinner on background refreshes - this maintains scroll position
-      if (reloadTimeout) {
-        clearTimeout(reloadTimeout);
-      }
-      
-      reloadTimeout = setTimeout(() => {
-        logger.info("Reloading inventory after remote sync changes");
-        void loadItems(false); // false = no loading spinner, keeps scroll position
-      }, 500); // Wait 500ms after last change before reloading
-    });
-    
-    // Cleanup listener on unmount
-    return () => {
-      logger.debug("Removing inventory change listener");
-      if (reloadTimeout) {
-        clearTimeout(reloadTimeout);
-      }
-      changeToken.remove();
-    };
-  }, [db, logger, loadItems]);
-
-  const handleCountChange = async (id: string, newCount: number) => {
-    logger.debug("Inventory count change requested", { id, newCount });
-    
-    try {
-      // Get collection name from stored credentials
-      const credentials = getStoredCredentials();
-      if (!credentials) return;
-      const scopeName = getScopeNameFromStoreId(credentials.storeId);
-      const inventoryCollectionName = `${scopeName}.inventory` as any;
-      
-      // Mark this as a local change
-      localChangesRef.current.add(id);
-      
-      // Update in database using conflict-safe pattern
-      const collection = db.collections[inventoryCollectionName];
-      const existingDoc = await collection.getDocument(DocID(id));
-      
-      if (existingDoc) {
-        // IMPORTANT: Update local state FIRST before saving to database
-        // This gives instant UI feedback without reloading
-        setItems(prevItems =>
-          prevItems.map(item =>
-            item.id === id ? { ...item, stockQty: newCount, lastUpdated: Date.now() } : item
-          )
-        );
-        
-        // Create a new document with updated values
-        // IMPORTANT: Exclude CRDT "quantity" field to prevent conflict storms with Android P2P sync
-        // Android P2P uses CRDT counters that create complex revision histories (482+ revisions/update)
-        // Web uses simple stockQty field - mixing them causes infinite conflict loops
-        const { quantity, ...docWithoutCRDT } = existingDoc as any;
-        const updatedData = {
-          ...docWithoutCRDT,
-          stockQty: newCount,
-          lastUpdated: Date.now()
-        };
-        
-        // Create new document instance and save with LastWriteWins conflict handler
-        const docToSave = collection.createDocument(DocID(id), updatedData as any);
-        await collection.save(docToSave, LastWriteWins);
-        
-        logger.debug("Document saved and will sync automatically", { 
-          id, 
-          newStockQty: newCount
-        });
-        
-        // Clear the local change flag after a delay (after sync completes)
-        setTimeout(() => {
-          localChangesRef.current.delete(id);
-        }, 2000);
-      }
-    } catch (error) {
-      logger.error("Error updating inventory count", { id, error });
-      localChangesRef.current.delete(id);
-      // On error, reload from database to get correct state (no loading spinner)
-      void loadItems(false);
+      setLoading(false);
     }
   };
 
-  const totalItems = filteredItems.length;
+  const loadAnnotationsForSelectedDoc = async (docId: string) => {
+    try {
+      const count = await db.collections[annotationsColName]?.count() || 0;
+      if (count === 0) {
+        setAnnotations([]);
+        return;
+      }
+
+      const query = await db.createQuery(
+        `SELECT META().id, * FROM \`${scopeName}\`.\`annotations\` WHERE documentId = '${docId}' ORDER BY createdAt ASC`
+      );
+      const rows = await query.execute();
+      const anns: Annotation[] = [];
+      for (const row of rows) {
+        const plain = convertCBLToPlain(row);
+        if (plain.annotations) {
+          anns.push(plain.annotations as Annotation);
+        }
+      }
+      setAnnotations(anns);
+    } catch (err) {
+      console.error("Error loading annotations:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (!credentials) {
+      navigate("/");
+      return;
+    }
+
+    void loadDocuments();
+
+    // Setup collection listeners for real-time table sync
+    const docListener = db.collections[docsColName]?.addChangeListener(() => {
+      loadDocuments();
+    });
+
+    return () => {
+      docListener?.then(tok => tok.remove());
+    };
+  }, [navigate, db]);
+
+  // Keep annotations updated in real-time when drawer is open
+  useEffect(() => {
+    if (!selectedDoc) return;
+    
+    void loadAnnotationsForSelectedDoc(selectedDoc.id);
+
+    const annListener = db.collections[annotationsColName]?.addChangeListener(() => {
+      loadAnnotationsForSelectedDoc(selectedDoc.id);
+    });
+
+    return () => {
+      annListener?.then(tok => tok.remove());
+    };
+  }, [selectedDoc]);
+
+  const handleAddAnnotation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedDoc || !newAnnotationText.trim()) return;
+
+    setSubmittingAnn(true);
+    try {
+      const annId = `Ann_Web_${Math.random().toString(36).substring(2, 11)}`;
+      
+      const newAnn = {
+        id: annId,
+        docType: "Annotation" as const,
+        documentId: selectedDoc.id,
+        tenantId: scopeName,
+        authorId: credentials?.email || "web-user",
+        authorEmail: credentials?.email || "web-user",
+        body: newAnnotationText.trim(),
+        resolved: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      const mutableDoc = new MutableDocument(annId, newAnn);
+      
+      // Save directly to the annotations collection in Couchbase Lite JS
+      await db.collections[annotationsColName].save(mutableDoc);
+
+      setNewAnnotationText("");
+      toast.success("Case update annotation added!", {
+        description: "Replicating to Capella and syncing to iPad in background."
+      });
+    } catch (err) {
+      console.error("Failed to save annotation:", err);
+      toast.error("Failed to add annotation");
+    } finally {
+      setSubmittingAnn(false);
+    }
+  };
+
+  const filteredDocs = documents.filter((doc) => {
+    const term = search.toLowerCase();
+    return (
+      doc.name.toLowerCase().includes(term) ||
+      (doc.matter?.toLowerCase() || "").includes(term) ||
+      (doc.client?.toLowerCase() || "").includes(term) ||
+      (doc.textContent?.toLowerCase() || "").includes(term)
+    );
+  });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-accent/5">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
       {/* Header */}
-      <header className="border-b bg-card/95 backdrop-blur-sm shadow-soft sticky top-0 z-10">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={() => navigate("/dashboard")} className="gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Dashboard
-              </Button>
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Package2 className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold">Inventory Management</h1>
-                  <p className="text-sm text-muted-foreground">
-                    {totalItems} items
-                  </p>
-                  <p className="text-xs text-muted-foreground">Store Number: #2847</p>
-                </div>
-              </div>
+      <header className="border-b bg-white shadow-sm sticky top-0 z-10">
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" onClick={() => navigate("/dashboard")} className="p-2 text-slate-600 hover:text-slate-900">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-xl font-bold">Document Explorer</h1>
+              <p className="text-xs text-slate-500">Matter files & secure case search</p>
             </div>
-            <div className="flex items-center gap-3">
-              <OfflineToggle />
-              <SyncStatus />
-            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <SyncStatus />
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-6 py-8">
-        {/* Search and Stats */}
-        <div className="mb-8 space-y-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search items, categories, ID, or barcode..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-11"
-              />
-            </div>
-            
-            <div className="flex gap-4">
-              <Badge variant="secondary" className="text-sm px-3 py-1">
-                {Object.keys(groupedItems).length} Categories
-              </Badge>
-              <Badge variant="secondary" className="text-sm px-3 py-1">
-                {totalItems} Items
-              </Badge>
-            </div>
+      {/* Main Content */}
+      <main className="container mx-auto px-6 py-8 space-y-6">
+        {/* Search Bar */}
+        <div className="flex gap-4">
+          <div className="relative flex-grow">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              type="text"
+              placeholder="Search documents by filename, content, matter, or client..."
+              className="pl-10 h-11 bg-white border-slate-200 rounded-xl"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
         </div>
 
-        {/* Inventory Categories */}
-        <div className="space-y-8">
+        {/* Table Card */}
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
           {loading ? (
-            <div className="text-center py-12">
-              <Package2 className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-pulse" />
-              <h3 className="text-lg font-semibold mb-2">Loading inventory...</h3>
-              <p className="text-muted-foreground">
-                Please wait while we fetch your items.
-              </p>
+            <div className="py-20 flex flex-col items-center justify-center text-slate-400 gap-2">
+              <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+              <span>Loading documents...</span>
             </div>
-          ) : Object.keys(groupedItems).length === 0 ? (
-            <div className="text-center py-12">
-              <Package2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No items found</h3>
-              <p className="text-muted-foreground">
-                Try adjusting your search query or check back later.
-              </p>
+          ) : filteredDocs.length === 0 ? (
+            <div className="py-20 text-center text-slate-400">
+              No matter documents found. Please seed corporate data in the iPad app first.
             </div>
           ) : (
-            Object.entries(groupedItems).map(([category, categoryItems]) => (
-              <Card key={category} className="shadow-medium border border-border/50">
-                <CardHeader className="bg-muted/30">
-                  <CardTitle className="flex items-center justify-between">
-                    <span className="text-xl">{category}</span>
-                    <Badge variant="outline" className="text-sm">
-                      {categoryItems.length} items
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {categoryItems.map((item) => (
-                          <InventoryItem
-                            key={item.id}
-                            item={item}
-                            onCountChange={handleCountChange}
-                          />
-                        ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="font-semibold text-slate-700">Filename</TableHead>
+                  <TableHead className="font-semibold text-slate-700">Format</TableHead>
+                  <TableHead className="font-semibold text-slate-700">Case Matter</TableHead>
+                  <TableHead className="font-semibold text-slate-700">Client</TableHead>
+                  <TableHead className="font-semibold text-slate-700 text-center">Status</TableHead>
+                  <TableHead className="font-semibold text-slate-700 text-right">Modified</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredDocs.map((doc) => (
+                  <TableRow
+                    key={doc.id}
+                    className="cursor-pointer hover:bg-slate-50 transition-colors"
+                    onClick={() => setSelectedDoc(doc)}
+                  >
+                    <TableCell className="font-semibold text-slate-900">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-indigo-600 flex-shrink-0" />
+                        <span>{doc.name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="uppercase text-xs font-bold text-slate-500">
+                      {doc.fileExtension}
+                    </TableCell>
+                    <TableCell className="text-slate-600">{doc.matter || "—"}</TableCell>
+                    <TableCell className="text-slate-600">{doc.client || "—"}</TableCell>
+                    <TableCell className="text-center">
+                      <span className="text-xs px-2.5 py-1 bg-slate-100 border text-slate-600 font-semibold rounded-full uppercase tracking-wider">
+                        {doc.status}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right text-xs font-medium text-slate-500">
+                      {new Date(doc.updatedAt).toLocaleDateString()}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </div>
       </main>
+
+      {/* Document Detail Drawer */}
+      <Sheet open={selectedDoc !== null} onOpenChange={(open) => { if (!open) setSelectedDoc(null); }}>
+        {selectedDoc && (
+          <SheetContent className="bg-white border-l w-full sm:max-w-xl overflow-y-auto p-6 space-y-6">
+            <SheetHeader className="border-b pb-4">
+              <div className="flex items-center gap-2 text-indigo-600 font-bold text-xs uppercase tracking-wide">
+                <FileText className="h-4 w-4" />
+                <span>Document Details</span>
+              </div>
+              <SheetTitle className="text-xl font-bold text-slate-900 pt-1">{selectedDoc.name}</SheetTitle>
+              <SheetDescription className="text-slate-500">
+                Matter: {selectedDoc.matter} • Client: {selectedDoc.client}
+              </SheetDescription>
+            </SheetHeader>
+
+            {/* AI Summary Section */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-slate-700">AI Summary</h3>
+              <p className="text-sm text-slate-600 bg-slate-50 border p-4 rounded-xl leading-relaxed">
+                {selectedDoc.summary || "No AI summary generated for this document yet."}
+              </p>
+            </div>
+
+            {/* Annotations Section */}
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="text-sm font-semibold text-slate-700">Case matter annotations & Updates</h3>
+              
+              {annotations.length === 0 ? (
+                <div className="text-center py-4 bg-slate-50 border border-dashed rounded-xl text-slate-400 text-xs">
+                  No annotations added yet. Submit an update below to test real-time RAG sync!
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                  {annotations.map((ann) => (
+                    <div key={ann.id} className="p-3 bg-slate-50 border rounded-xl space-y-1">
+                      <div className="flex justify-between text-xs font-semibold text-slate-400">
+                        <span>{ann.authorEmail}</span>
+                        <span>{new Date(ann.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <p className="text-sm text-slate-800 leading-relaxed italic">
+                        "{ann.body}"
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Add Annotation Form */}
+              <form onSubmit={handleAddAnnotation} className="flex gap-2">
+                <Input
+                  type="text"
+                  placeholder="Simulate case email update or legal annotation..."
+                  className="bg-white border-slate-200 rounded-xl"
+                  value={newAnnotationText}
+                  onChange={(e) => setNewAnnotationText(e.target.value)}
+                  disabled={submittingAnn}
+                />
+                <Button
+                  type="submit"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl"
+                  disabled={submittingAnn || !newAnnotationText.trim()}
+                >
+                  {submittingAnn ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                </Button>
+              </form>
+            </div>
+          </SheetContent>
+        )}
+      </Sheet>
     </div>
   );
 };

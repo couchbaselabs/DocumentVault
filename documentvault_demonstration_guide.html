@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <title>DocumentVault — Interactive Demonstration Guide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(120% 120% at 50% 10%, #f8fafc 0%, #e2e8f0 100%);
+      --card-bg: rgba(255, 255, 255, 0.75);
+      --card-border: rgba(0, 0, 0, 0.06);
+      --card-hover-border: rgba(99, 102, 241, 0.3);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --accent-color: #4f46e5;
+      --accent-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      --success-color: #059669;
+      --warning-color: #d97706;
+      --code-bg: #f1f5f9;
+      --shadow-color: rgba(0, 0, 0, 0.05);
+      --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    [data-theme="dark"] {
+      --bg-gradient: radial-gradient(120% 120% at 50% 10%, #0f172a 0%, #020617 100%);
+      --card-bg: rgba(30, 41, 59, 0.4);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover-border: rgba(99, 102, 241, 0.4);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-color: #6366f1;
+      --accent-gradient: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --code-bg: #090d16;
+      --shadow-color: rgba(0, 0, 0, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-gradient);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 40px 20px;
+      line-height: 1.6;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* Header styling */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 48px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--accent-gradient);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 20px;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, var(--text-primary), var(--text-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    .theme-toggle {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-primary);
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px var(--shadow-color);
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent-color);
+    }
+
+    /* Intro section */
+    .intro-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 40px;
+      box-shadow: 0 10px 30px var(--shadow-color);
+      backdrop-filter: blur(16px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .intro-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: var(--accent-gradient);
+    }
+
+    .intro-card h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .intro-card p {
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-bottom: 20px;
+    }
+
+    /* Story Card */
+    .story-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 40px;
+      box-shadow: 0 10px 24px var(--shadow-color);
+    }
+
+    .story-card h2 {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--accent-color);
+    }
+
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .story-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .story-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .story-item h4 {
+      font-size: 14.5px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .story-item p {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+    }
+
+    /* Core Concepts Block */
+    .concept-section {
+      background: rgba(99, 102, 241, 0.05);
+      border: 1px dashed rgba(99, 102, 241, 0.3);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 30px;
+    }
+
+    .concept-section h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent-color);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 13.5px;
+    }
+
+    .comparison-table th, .comparison-table td {
+      border: 1px solid var(--card-border);
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    .comparison-table th {
+      background: rgba(255, 255, 255, 0.05);
+      font-weight: 700;
+    }
+
+    /* Steps Layout */
+    .steps-container {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .step-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 24px var(--shadow-color);
+      transition: all 0.3s ease;
+      display: flex;
+      gap: 24px;
+    }
+
+    .step-card:hover {
+      border-color: var(--card-hover-border);
+      transform: translateY(-2px);
+    }
+
+    .step-badge {
+      width: 48px;
+      height: 48px;
+      background: var(--card-bg);
+      border: 2px solid var(--accent-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--accent-color);
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px var(--shadow-color);
+    }
+
+    .step-content {
+      flex-grow: 1;
+    }
+
+    .step-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .tag-primary {
+      background: rgba(99, 102, 241, 0.15);
+      color: #818cf8;
+      border: 1.5px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .tag-success {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1.5px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .step-desc {
+      color: var(--text-secondary);
+      font-size: 14.5px;
+      margin-bottom: 20px;
+    }
+
+    .instructions-block {
+      background: var(--code-bg);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid var(--card-border);
+      margin-bottom: 16px;
+    }
+
+    .instructions-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      font-family: var(--font-sans);
+    }
+
+    .command-line {
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-secondary);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: var(--font-sans);
+    }
+
+    .copy-btn:hover {
+      background: var(--accent-color);
+      color: white;
+    }
+
+    .bullet-list {
+      list-style-type: none;
+      margin-top: 10px;
+    }
+
+    .bullet-list li {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .bullet-list li::before {
+      content: "•";
+      color: var(--accent-color);
+      font-weight: bold;
+      font-size: 16px;
+      position: absolute;
+      left: 4px;
+      top: -2px;
+    }
+
+    .alert-banner {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1.5px solid rgba(245, 158, 11, 0.25);
+      color: #fbbf24;
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-size: 14px;
+      margin-top: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .alert-icon {
+      font-size: 18px;
+      line-height: 1;
+      margin-top: 2px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid var(--card-border);
+      color: var(--text-secondary);
+      font-size: 12.5px;
+    }
+
+    footer a {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
+
+    .diagram-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      gap: 8px;
+    }
+    .diagram-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-grow: 1;
+    }
+    .diagram-box {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-align: center;
+      flex-grow: 1;
+      box-shadow: 0 2px 6px var(--shadow-color);
+    }
+    .diagram-box-accent {
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+      background: rgba(99, 102, 241, 0.05);
+    }
+    .diagram-arrow {
+      font-size: 16px;
+      color: var(--text-secondary);
+      font-weight: bold;
+    }
+
+    /* Architecture Diagram styling */
+    .arch-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+      margin-bottom: 20px;
+    }
+    .arch-column {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.01);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .arch-column-title {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--accent-color);
+      margin-bottom: 6px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 4px;
+      text-align: center;
+    }
+    .arch-box {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 11px;
+      box-shadow: 0 3px 6px var(--shadow-color);
+    }
+    .arch-box-title {
+      font-weight: 700;
+      margin-bottom: 3px;
+      color: var(--text-primary);
+    }
+    .arch-box-desc {
+      font-size: 10px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    @media print {
+      body {
+        background: white !important;
+        color: #0f172a !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .container {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      header, footer, .theme-toggle, .copy-btn {
+        display: none !important;
+      }
+      .intro-card, .story-card, .step-card {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 24px !important;
+        border: 1px solid #ccc !important;
+        background: white !important;
+        color: #0f172a !important;
+        box-shadow: none !important;
+      }
+      .diagram-container {
+        background: white !important;
+        border: 1px solid #ccc !important;
+      }
+      .diagram-box {
+        background: #f8fafc !important;
+        border: 1px solid #ccc !important;
+        color: #0f172a !important;
+        box-shadow: none !important;
+      }
+      .diagram-box-accent {
+        background: #e0e7ff !important;
+        border: 1px solid #4f46e5 !important;
+        color: #4f46e5 !important;
+      }
+      .arch-container {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+      }
+      .arch-column {
+        border: 1px solid #ccc !important;
+        background: white !important;
+      }
+      .arch-box {
+        background: #f8fafc !important;
+        border: 1px solid #ccc !important;
+        color: #0f172a !important;
+        box-shadow: none !important;
+      }
+      .instructions-block {
+        background: #f8fafc !important;
+        border: 1px solid #ccc !important;
+      }
+      .command-line {
+        color: #0366d6 !important;
+      }
+      .page-break {
+        page-break-before: always !important;
+        break-before: page !important;
+        height: 0;
+        margin: 0;
+        border: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo-container">
+        <div class="logo-icon">V</div>
+        <div>
+          <h1>DocumentVault</h1>
+          <div class="subtitle">Couchbase Lite Demonstration Guide</div>
+        </div>
+      </div>
+      <button class="theme-toggle" id="themeBtn">
+        <span id="themeIcon">🌙</span>
+        <span id="themeText">Dark Mode</span>
+      </button>
+    </header>
+
+    <div class="intro-card">
+      <h2>Demonstration Overview</h2>
+      <p>This interactive walkthrough guides you through illustrating the real-time cloud-to-edge synchronization, offline-first operation, and embedded vector search capabilities of Couchbase Lite (CBL) inside the iOS DocumentVault app alongside our Capella App Services instance.</p>
+      
+      <div class="concept-section">
+        <h3>🛡️ Enforcing RAG Governance Boundaries</h3>
+        <p style="font-size: 13.8px; color: var(--text-secondary);">
+          Standard vector RAG matches search queries globally based on semantic similarity. In secure data environments (like banking or legal casework), this introduces data leakages and cross-matter pollution. 
+          To mitigate this, the app utilizes <strong>composite scalar-vector query pre-filtering</strong> to restrict search ranges prior to executing semantic scans.
+        </p>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Approach</th>
+              <th>Execution Order</th>
+              <th>Compliance Risk</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Unscoped (Standard RAG)</strong></td>
+              <td>ANN Vector scan &rarr; Post-filter results</td>
+              <td>High (Retrieves outdated periods or wrong clients)</td>
+            </tr>
+            <tr>
+              <td><strong>Scoped (Composite Pre-Filtering)</strong></td>
+              <td><strong>Enforce Scope (Folder/Client ID) &rarr; ANN scan</strong></td>
+              <td><strong>Zero (Strict boundary isolation verified at indexing level)</strong></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="diagram-container">
+          <div class="diagram-step">
+            <div class="diagram-box">User Query</div>
+            <div class="diagram-arrow">&rarr;</div>
+          </div>
+          <div class="diagram-step">
+            <div class="diagram-box diagram-box-accent">CBL Scope Pre-Filter</div>
+            <div class="diagram-arrow">&rarr;</div>
+          </div>
+          <div class="diagram-step">
+            <div class="diagram-box">ANN Vector Scan</div>
+            <div class="diagram-arrow">&rarr;</div>
+          </div>
+          <div class="diagram-step">
+            <div class="diagram-box diagram-box-accent">Prompt Injection</div>
+            <div class="diagram-arrow">&rarr;</div>
+          </div>
+          <div class="diagram-step">
+            <div class="diagram-box">Scoped RAG Answer</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert-banner">
+        <span class="alert-icon">💡</span>
+        <span><strong>Capella Cluster Synced:</strong> Both the iOS app and Web backend sync to the same live Capella App Services endpoint. Updates generated anywhere will propagate dynamically in the background.</span>
+      </div>
+    </div>
+
+    <!-- Narrative & Story section -->
+    <div class="story-card">
+      <h2>📖 The Narrative: Core Problems We Are Solving</h2>
+      <div class="story-grid">
+        <div class="story-item">
+          <h4>💰 1. Zero Cloud Compute & Token Costs</h4>
+          <p>
+            Traditional mobile vector retrieval requires constant cloud vector databases (e.g., Pinecone/pgvector) and high token network request costs. 
+            Couchbase Lite performs all float vector comparison math <strong>100% on-device</strong> within the local SQLite engine, eliminating cloud query bills.
+          </p>
+        </div>
+        <div class="story-item">
+          <h4>🔒 2. Data Sovereignty & Absolute Privacy</h4>
+          <p>
+            Law firms, courtrooms, and banks cannot leak sensitive documents to third-party cloud vector search caches. 
+            By keeping embeddings on-device and using Apple Intelligence locally, secure casework documents <strong>never leave the physical device boundary</strong>.
+          </p>
+        </div>
+        <div class="story-item">
+          <h4>📶 3. Air-Gapped Offline Resilience</h4>
+          <p>
+            If a lawyer is in a basement vault or a courtroom with no cellular signal, standard RAG apps break completely. 
+            Couchbase Lite ensures the entire RAG pipeline—embeddings, indices, document lookups, and summaries—is <strong>fully functional while offline</strong>.
+          </p>
+        </div>
+        <div class="story-item">
+          <h4>🔄 4. Real-time Reactive Freshness</h4>
+          <p>
+            Vector stores usually rely on scheduled batch jobs, meaning search results are stale. 
+            With CBL database change listeners, the moment a new annotation or review note syncs in from another device, the local vector index is <strong>automatically updated in the background</strong>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Architecture Diagram Card -->
+    <div class="story-card">
+      <h2>🌐 System & Component Architecture</h2>
+      <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;">
+        High-level architecture showing how users, ingestion sources, the local iOS client, Capella App Services, and the AI plane integrate:
+      </p>
+      
+      <div class="arch-container">
+        <!-- Column 1: Actors & Ingestion -->
+        <div class="arch-column">
+          <div class="arch-column-title">1. Senders & Sinks</div>
+          <div class="arch-box">
+            <div class="arch-box-title">Legal / Corporate User</div>
+            <div class="arch-box-desc">Interacts with iPad UI to view, chat, and annotate matters.</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-box-title">Third-Party Senders</div>
+            <div class="arch-box-desc">Sends emails, case briefs, and corporate notes.</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-box-title">Email Server Gateway</div>
+            <div class="arch-box-desc">Ingests SMTP messages and triggers database writes.</div>
+          </div>
+        </div>
+        
+        <!-- Column 2: Document Vault iOS Client -->
+        <div class="arch-column">
+          <div class="arch-column-title">2. iOS App (Internal)</div>
+          <div class="arch-box">
+            <div class="arch-box-title">SwiftUI View Layer</div>
+            <div class="arch-box-desc">ChatView, DocumentDetailView, UploadView, ProfileView.</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-box-title">Database & Processing</div>
+            <div class="arch-box-desc">DatabaseManager, DocumentProcessingPipeline, local File Sandbox.</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-box-title">Couchbase Lite iOS</div>
+            <div class="arch-box-desc">Local SQLite database containing collections: documents, folders, annotations.</div>
+          </div>
+        </div>
+        
+        <!-- Column 3: Cloud Sync Plane -->
+        <div class="arch-column">
+          <div class="arch-column-title">3. Capella Sync Plane</div>
+          <div class="arch-box">
+            <div class="arch-box-title">Capella App Services</div>
+            <div class="arch-box-desc">WebSocket sync gateway managing replication channels.</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-box-title">Couchbase Capella</div>
+            <div class="arch-box-desc">Cloud Server bucket with isolated scopes per tenant.</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-box-title">Web Frontend (Vite)</div>
+            <div class="arch-box-desc">Retail and audit dashboard syncing real-time updates.</div>
+          </div>
+        </div>
+        
+        <!-- Column 4: AI & Embedding Plane -->
+        <div class="arch-column">
+          <div class="arch-column-title">4. AI Data Plane</div>
+          <div class="arch-box">
+            <div class="arch-box-title">Local Embedding Engine</div>
+            <div class="arch-box-desc">Generates float vector arrays directly on-device.</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-box-title">Apple Intelligence</div>
+            <div class="arch-box-desc">On-device SystemLanguageModel for local secure summary execution.</div>
+          </div>
+          <div class="arch-box">
+            <div class="arch-box-title">OpenAI API Cloud Plane</div>
+            <div class="arch-box-desc">Fallback cloud engine for complex processing tasks.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <div class="steps-container">
+      <!-- Step 1 -->
+      <div class="step-card">
+        <div class="step-badge">1</div>
+        <div class="step-content">
+          <div class="step-title">
+            Start the Web App Backend
+            <span class="tag tag-primary">Laptop</span>
+          </div>
+          <div class="step-desc">
+            To view incoming changes on a dashboard, spin up the React-based Web inventory app. It is pre-configured with the same App Services WebSocket endpoint as the iPad simulator.
+          </div>
+          
+          <div class="instructions-block">
+            <div class="instructions-title">Shell Command</div>
+            <div class="command-line">
+              <span>cd /Users/austin.gonyou/Downloads/Apps/CBDemoChallengeApp/web && npm run dev</span>
+              <button class="copy-btn" onclick="copyCmd(this, 'cd /Users/austin.gonyou/Downloads/Apps/CBDemoChallengeApp/web && npm run dev')">Copy</button>
+            </div>
+          </div>
+          <p class="step-desc" style="font-size: 13px; margin-bottom: 0;">Once launched, open the local URL (typically <code>http://localhost:5173</code>) in your browser.</p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-card">
+        <div class="step-badge">2</div>
+        <div class="step-content">
+          <div class="step-title">
+            Launch the iPad App
+            <span class="tag tag-primary">iOS Simulator</span>
+          </div>
+          <div class="step-desc">
+            Build and launch the main iOS application inside the Xcode Simulator (iPad model is recommended for side-by-side display).
+          </div>
+          
+          <div class="instructions-block">
+            <div class="instructions-title">Xcode Shortcuts</div>
+            <ul class="bullet-list">
+              <li>Open <code>/iOS/DocumentVault.xcodeproj</code> in Xcode.</li>
+              <li>Select <strong>iPad Simulator</strong> as the run destination.</li>
+              <li>Press <strong>Cmd + R</strong> to build and run the application.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-card">
+        <div class="step-badge">3</div>
+        <div class="step-content">
+          <div class="step-title">
+            Seed & Train the Local Vector Index
+            <span class="tag tag-success">Action</span>
+          </div>
+          <div class="step-desc">
+            To query documents semantically, satisfy the 200-document vector index training limit by running the programmatic local seeder.
+          </div>
+          <ul class="bullet-list" style="margin-bottom: 16px;">
+            <li>In the iPad app, navigate to the <strong>Profile</strong> tab.</li>
+            <li>Tap the <strong>"Seed Sample Corporate Data"</strong> button.</li>
+            <li>This inserts 206 mock documents, automatically triggering the local 1024-dimension float vector index training.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="page-break"></div>
+
+      <!-- Step 4 -->
+      <div class="step-card">
+        <div class="step-badge">4</div>
+        <div class="step-content">
+          <div class="step-title">
+            Trigger simulated Jane Email (Matter AN-01)
+            <span class="tag tag-success">Action</span>
+          </div>
+          <div class="step-desc">
+            Demonstrate how incoming email updates dynamically alter the vector search indexes and AI summaries of related case documents.
+          </div>
+          
+          <ul class="bullet-list">
+            <li>In the iPad app, go to the <strong>Profile</strong> tab.</li>
+            <li>Tap <strong>"Simulate Email from Jane (Matter AN-01)"</strong>.</li>
+            <li>This automatically creates a new <code>.eml</code> document, logs an <code>emailCaptured</code> custody chain audit event on the PwC case matter document, and saves a linked annotation update.</li>
+          </ul>
+
+          <div class="alert-banner">
+            <span class="alert-icon">⚡</span>
+            <span><strong>Couchbase Reactive Sync:</strong> The database change listeners immediately catch the new annotation, schedule background re-summarization, and generate a new unit-normalized embedding of the tax document including Jane's deferred tax updates.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step-card">
+        <div class="step-badge">5</div>
+        <div class="step-content">
+          <div class="step-title">
+            Verify Dynamic AI Updates & Vector Search
+            <span class="tag tag-success">Verification</span>
+          </div>
+          <div class="step-desc">
+            Verify the changes and test boundary leakage constraints inside the <strong>Agent Chat</strong>:
+          </div>
+          <ul class="bullet-list">
+            <li>Open the **Documents List**: You will find Jane's email saved as a previewable document with an envelope icon.</li>
+            <li>Open the **PwC Tax Return file**:
+              <ul class="bullet-list" style="margin-top: 6px; padding-left: 10px;">
+                <li>The **Summary** section now lists PwC's deferred tax negligence.</li>
+                <li>The **Custody** tab shows the automated email capture audit trail.</li>
+              </ul>
+            </li>
+            <li>Open the **Agent Chat** tab:
+              <ul class="bullet-list" style="margin-top: 6px; padding-left: 10px;">
+                <li><strong>Showcase Baseline (No RAG)</strong>: Toggle the <strong>"Couchbase RAG"</strong> switch to <strong>Disabled</strong>. Ask: <em>"Was there an important matter about PwC negligence?"</em>. The LLM will decline or fail to answer, proving that it has no knowledge of local files or private emails.</li>
+                <li><strong>Showcase Couchbase RAG</strong>: Toggle the <strong>"Couchbase RAG"</strong> switch to <strong>Enabled</strong>. Re-run the query. The LLM will provide a detailed, accurate response citing Jane's email and the tax filings.</li>
+                <li><strong>Showcase Context Scoping</strong>: Set the <strong>"Context Scope"</strong> picker to a folder outside of the target matter (e.g. choose <em>"Legal Contracts"</em> instead of <em>"Financial Records & Audits"</em>). Re-run the query. The LLM will report that it cannot find any information, demonstrating secure data partition and context boundaries (critical for compliance and client data segregation).</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      DocumentVault Case Management Demonstration Guide • Powered by Couchbase Lite iOS
+    </footer>
+  </div>
+
+  <script>
+    const themeBtn = document.getElementById('themeBtn');
+    const htmlEl = document.documentElement;
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+
+    themeBtn.addEventListener('click', () => {
+      if (htmlEl.getAttribute('data-theme') === 'dark') {
+        htmlEl.setAttribute('data-theme', 'light');
+        themeIcon.textContent = '🌙';
+        themeText.textContent = 'Dark Mode';
+      } else {
+        htmlEl.setAttribute('data-theme', 'dark');
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'Light Mode';
+      }
+    });
+
+    function copyCmd(btn, text) {
+      navigator.clipboard.writeText(text);
+      const originalText = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.style.background = '#10b981';
+      btn.style.color = 'white';
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.background = '';
+        btn.style.color = '';
+      }, 1500);
+    }
+  </script>
+</body>
+</html>

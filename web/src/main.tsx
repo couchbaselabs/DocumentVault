@@ -4,40 +4,29 @@ import App from "./App.tsx";
 import "./index.css";
 import { initializeDatabase } from "./lib/database/initDatabase";
 import { DatabaseProvider } from "./lib/database/DatabaseProvider";
-import { setupSync } from "./lib/database/sync";
-import { getStoredCredentials, getAppServicesUrl, getAppEndpoint } from "./lib/auth";
-import type { RetailDatabase } from "./lib/database/types";
+import { startContinuousSync as setupContinuousSync } from "./lib/database/replicator";
+import { getStoredCredentials } from "./lib/auth";
+import type { VaultDatabase } from "./lib/database/types";
 import { initializeLogging } from "./lib/logging";
 
 /**
- * Start continuous sync for inventory and orders after successful login
- * This is called from the Dashboard component after authentication
+ * Start continuous sync for documents and annotations after successful login
  */
-export async function startContinuousSync(db: RetailDatabase) {
-  // Get stored credentials
+export async function startContinuousSync(db: VaultDatabase) {
   const credentials = getStoredCredentials();
   if (!credentials) {
     console.log('⚠️ No credentials found - cannot start sync');
     return null;
   }
 
-  console.log('🔄 Starting continuous sync for inventory and orders...');
-  console.log('🏪 Store ID:', credentials.storeId);
-
-  const syncUrl = getAppServicesUrl() + "/" + getAppEndpoint(credentials);
-  console.log('📡 App Services URL:', syncUrl);
+  console.log('🔄 Starting continuous sync for DocumentVault...');
+  console.log('🏢 Tenant ID:', credentials.tenantId);
 
   try {
-    const replicator = setupSync(db, {
-      url: syncUrl,
-      username: credentials.email,
-      password: credentials.password,
-      storeId: credentials.storeId,
-    });
-
+    const replicator = setupContinuousSync(db, credentials.tenantId);
     console.log('✅ Continuous sync started successfully');
 
-    // Store replicator instance for later use
+    // Store replicator instance globally
     (window as any).__replicator = replicator;
 
     return replicator;
@@ -49,33 +38,25 @@ export async function startContinuousSync(db: RetailDatabase) {
 
 async function bootstrap() {
   try {
-    // Initialize logging first
     await initializeLogging();
-    console.log('🚀 Bootstrapping application...');
+    console.log('🚀 Bootstrapping DocumentVault Web application...');
 
-    // Check if user has stored credentials
     const credentials = getStoredCredentials();
-
-    let db: RetailDatabase | null = null;
+    let db: VaultDatabase | null = null;
 
     if (credentials) {
-      // User is logged in - initialize database with their storeId
-      console.log('🔑 Found stored credentials for store:', credentials.storeId);
-      db = await initializeDatabase(credentials.storeId);
-      console.log('✅ Database initialized for', credentials.storeId);
+      console.log('🔑 Found stored credentials for tenant:', credentials.tenantId);
+      db = await initializeDatabase(credentials.tenantId);
+      console.log('✅ Database initialized for', credentials.tenantId);
 
-      // Start continuous sync immediately
       console.log('🚀 Bootstrap: Starting continuous sync...');
       await startContinuousSync(db);
-      console.log('✅ Bootstrap: Continuous sync started');
     } else {
-      // No credentials - database will be initialized after login
       console.log('📝 No stored credentials - database will initialize after login');
     }
 
-    // Render app
     const rootElement = document.getElementById("root");
-    if (rootElement && !rootElement.innerHTML) {
+    if (rootElement) {
       const root = createRoot(rootElement);
       root.render(
         <StrictMode>
@@ -91,7 +72,6 @@ async function bootstrap() {
     }
   } catch (error) {
     console.error('❌ Bootstrap failed:', error);
-    throw error;
   }
 }
 

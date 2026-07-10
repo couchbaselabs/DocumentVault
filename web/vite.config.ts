@@ -8,6 +8,15 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      '/sync-gateway': {
+        target: 'https://gal7pf8dclbqfk.apps.cloud.couchbase.com:4984',
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+        rewrite: (path) => path.replace(/^\/sync-gateway/, '')
+      }
+    }
   },
   plugins: [
     react(),

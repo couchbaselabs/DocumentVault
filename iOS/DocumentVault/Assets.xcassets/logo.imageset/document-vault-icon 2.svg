@@ -1,0 +1,251 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background gradient: deep indigo to vibrant violet -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="55%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+
+    <radialGradient id="bgGlow" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#A5B4FC" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#4F46E5" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Document paper -->
+    <linearGradient id="docGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E0E7FF"/>
+    </linearGradient>
+
+    <!-- Steel — outer vault body (brushed metal look) -->
+    <radialGradient id="vaultOuter" cx="35%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#F1F5F9"/>
+      <stop offset="35%" stop-color="#CBD5E1"/>
+      <stop offset="75%" stop-color="#64748B"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </radialGradient>
+
+    <!-- Steel — middle ring -->
+    <radialGradient id="vaultMid" cx="35%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#E2E8F0"/>
+      <stop offset="50%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </radialGradient>
+
+    <!-- Steel — inner door face -->
+    <radialGradient id="vaultInner" cx="40%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#F8FAFC"/>
+      <stop offset="55%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </radialGradient>
+
+    <!-- Spoke handle gradient -->
+    <linearGradient id="spokeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F1F5F9"/>
+      <stop offset="50%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+
+    <!-- Rivet gradient (3D bolt look) -->
+    <radialGradient id="rivetGrad" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#F8FAFC"/>
+      <stop offset="60%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </radialGradient>
+
+    <!-- Hinge gradient -->
+    <linearGradient id="hingeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="50%" stop-color="#CBD5E1"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+
+    <!-- Document drop shadow -->
+    <filter id="docShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10"/>
+      <feOffset dx="0" dy="8" result="offsetblur"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.4"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <!-- Vault drop shadow -->
+    <filter id="vaultShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="16"/>
+      <feOffset dx="0" dy="14" result="offsetblur"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.5"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <!-- Reusable rivet symbol -->
+    <symbol id="rivet" viewBox="-10 -10 20 20">
+      <circle cx="0" cy="0" r="9" fill="url(#rivetGrad)" stroke="#1E293B" stroke-width="0.8"/>
+      <circle cx="-2" cy="-2.5" r="3" fill="#F8FAFC" opacity="0.7"/>
+    </symbol>
+  </defs>
+
+  <!-- Clip path for the rounded-square icon shape (used by binary text) -->
+  <clipPath id="iconClip">
+    <rect x="0" y="0" width="1024" height="1024" rx="224" ry="224"/>
+  </clipPath>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="1024" height="1024" rx="224" ry="224" fill="url(#bgGradient)"/>
+  <rect x="0" y="0" width="1024" height="1024" rx="224" ry="224" fill="url(#bgGlow)"/>
+
+  <!-- Binary code pattern across the background -->
+  <g clip-path="url(#iconClip)" font-family="ui-monospace, 'SF Mono', 'Courier New', monospace" font-weight="600" fill="#FFFFFF" opacity="0.11" font-size="28" letter-spacing="6">
+    <text x="40" y="80">01000100 01001111 01000011 01010101 01001101 01000101 01001110 01010100</text>
+    <text x="40" y="130">10110100 01101001 10010011 01010110 01000001 01010101 01001100 01010100</text>
+    <text x="40" y="180">01001000 01000001 01010011 01001000 11001010 01010011 01001000 01000001</text>
+    <text x="40" y="230">11001011 01000101 01001110 01000011 01010010 01011001 01010000 01010100</text>
+    <text x="40" y="280">01010011 01001001 01000111 01001110 01000101 01000100 10100110 11010001</text>
+    <text x="40" y="330">10101100 01000101 10100110 11010010 01001011 01000101 01011001 01010011</text>
+    <text x="40" y="380">01010100 01001111 01001011 01000101 01001110 11001010 01001000 01000001</text>
+    <text x="40" y="430">01010011 01001000 01000011 01001000 01000001 01001001 01001110 11010110</text>
+    <text x="40" y="480">01010110 01000001 01010101 01001100 01010100 01010100 01010010 01010101</text>
+    <text x="40" y="530">01010011 01010100 01001110 01000101 01010100 01010111 01001111 01010010</text>
+    <text x="40" y="580">01001011 01001100 01000101 01000100 01000111 01000101 01010010 01000111</text>
+    <text x="40" y="630">01001001 01010011 01010100 01010010 01011001 01001000 01000001 01010011</text>
+    <text x="40" y="680">11001000 01010101 01010100 01001000 01001000 01000001 01010011 01001000</text>
+    <text x="40" y="730">01010011 01001001 01000111 01001110 01010100 01010010 01010101 01010011</text>
+    <text x="40" y="780">01010100 01000101 01001110 01000011 01010010 01011001 01010000 01010100</text>
+    <text x="40" y="830">01001100 01000101 01000100 01000111 11010010 01001001 01010011 01010100</text>
+    <text x="40" y="880">01010110 01000001 01010101 01001100 01010100 01000100 01001111 01000011</text>
+    <text x="40" y="930">01000001 01010101 01010100 01001000 11001010 01001110 01010100 01001001</text>
+    <text x="40" y="980">01000011 01001000 01000001 01001001 01001110 01001111 01000110 01000011</text>
+  </g>
+
+  <!-- Decorative chain links (chain of custody motif) -->
+  <g opacity="0.18" stroke="#FFFFFF" stroke-width="14" fill="none" stroke-linecap="round">
+    <ellipse cx="160" cy="170" rx="42" ry="22" transform="rotate(-35 160 170)"/>
+    <ellipse cx="220" cy="230" rx="42" ry="22" transform="rotate(-35 220 230)"/>
+    <ellipse cx="864" cy="854" rx="42" ry="22" transform="rotate(-35 864 854)"/>
+    <ellipse cx="804" cy="794" rx="42" ry="22" transform="rotate(-35 804 794)"/>
+  </g>
+
+  <!-- Document sheets peeking out from behind vault -->
+  <g filter="url(#docShadow)">
+    <!-- Back sheet, rotated slightly -->
+    <path d="M 235 195
+             L 605 195
+             L 725 315
+             L 725 825
+             Q 725 855 695 855
+             L 235 855
+             Q 205 855 205 825
+             L 205 225
+             Q 205 195 235 195 Z"
+          fill="url(#docGradient)" transform="rotate(-5 480 525)" opacity="0.9"/>
+    <!-- Front sheet -->
+    <path d="M 250 180
+             L 620 180
+             L 740 300
+             L 740 840
+             Q 740 870 710 870
+             L 250 870
+             Q 220 870 220 840
+             L 220 210
+             Q 220 180 250 180 Z"
+          fill="url(#docGradient)"/>
+    <!-- Folded corner -->
+    <path d="M 620 180 L 740 300 L 640 300 Q 620 300 620 280 Z"
+          fill="#C7D2FE"/>
+    <path d="M 620 180 L 620 280 Q 620 300 640 300 L 740 300"
+          fill="none" stroke="#A5B4FC" stroke-width="2.5" stroke-linejoin="round" opacity="0.6"/>
+  </g>
+
+  <!-- Document content lines (top portion, above the vault) -->
+  <g fill="#C7D2FE" opacity="0.9">
+    <rect x="260" y="360" width="340" height="16" rx="8"/>
+    <rect x="260" y="400" width="440" height="16" rx="8"/>
+    <rect x="260" y="440" width="380" height="16" rx="8"/>
+    <rect x="260" y="480" width="410" height="16" rx="8"/>
+    <rect x="260" y="520" width="300" height="16" rx="8"/>
+  </g>
+
+  <!-- ====== VAULT DOOR (smaller, horizontally centered on the document, lower third) ====== -->
+  <g transform="translate(480, 720) scale(0.45)" filter="url(#vaultShadow)">
+
+    <!-- Side hinges (right side of door, like the reference photo) -->
+    <g>
+      <!-- Top hinge -->
+      <rect x="285" y="-180" width="60" height="80" rx="6" fill="url(#hingeGrad)" stroke="#1E293B" stroke-width="2"/>
+      <circle cx="315" cy="-140" r="10" fill="#1E293B"/>
+      <!-- Middle hinge -->
+      <rect x="285" y="-40" width="60" height="80" rx="6" fill="url(#hingeGrad)" stroke="#1E293B" stroke-width="2"/>
+      <circle cx="315" cy="0" r="10" fill="#1E293B"/>
+      <!-- Bottom hinge -->
+      <rect x="285" y="100" width="60" height="80" rx="6" fill="url(#hingeGrad)" stroke="#1E293B" stroke-width="2"/>
+      <circle cx="315" cy="140" r="10" fill="#1E293B"/>
+    </g>
+
+    <!-- Outer vault frame (square plate behind the round door) -->
+    <rect x="-290" y="-290" width="580" height="580" rx="24" fill="url(#vaultOuter)" stroke="#1E293B" stroke-width="3"/>
+
+    <!-- Corner rivets on the square frame (4 only) -->
+    <g>
+      <use href="#rivet" x="-258" y="-258" width="26" height="26"/>
+      <use href="#rivet" x="232" y="-258" width="26" height="26"/>
+      <use href="#rivet" x="-258" y="232" width="26" height="26"/>
+      <use href="#rivet" x="232" y="232" width="26" height="26"/>
+    </g>
+
+    <!-- Outer round vault door rim -->
+    <circle cx="0" cy="0" r="265" fill="url(#vaultOuter)" stroke="#1E293B" stroke-width="3"/>
+
+    <!-- Sparse ring of rivets around the round rim (8 at compass points) -->
+    <g>
+      <use href="#rivet" x="-13" y="-253" width="26" height="26"/>
+      <use href="#rivet" x="160" y="-185" width="26" height="26"/>
+      <use href="#rivet" x="240" y="-13" width="26" height="26"/>
+      <use href="#rivet" x="160" y="159" width="26" height="26"/>
+      <use href="#rivet" x="-13" y="227" width="26" height="26"/>
+      <use href="#rivet" x="-186" y="159" width="26" height="26"/>
+      <use href="#rivet" x="-266" y="-13" width="26" height="26"/>
+      <use href="#rivet" x="-186" y="-185" width="26" height="26"/>
+    </g>
+
+    <!-- Middle door ring -->
+    <circle cx="0" cy="0" r="215" fill="url(#vaultMid)" stroke="#1E293B" stroke-width="2.5"/>
+
+    <!-- (Inner rivet ring removed for a cleaner door face) -->
+
+    <!-- Inner door face -->
+    <circle cx="0" cy="0" r="170" fill="url(#vaultInner)" stroke="#1E293B" stroke-width="2.5"/>
+
+    <!-- Concentric detail rings -->
+    <circle cx="0" cy="0" r="155" fill="none" stroke="#475569" stroke-width="1.5" opacity="0.6"/>
+    <circle cx="0" cy="0" r="140" fill="none" stroke="#475569" stroke-width="1" opacity="0.5"/>
+
+    <!-- ===== Spoked wheel handle ===== -->
+    <g>
+      <!-- 4 long spoke arms with rounded grips -->
+      <g fill="url(#spokeGrad)" stroke="#1E293B" stroke-width="2">
+        <!-- vertical -->
+        <rect x="-12" y="-145" width="24" height="125" rx="8"/>
+        <rect x="-12" y="20" width="24" height="125" rx="8"/>
+        <!-- horizontal -->
+        <rect x="-145" y="-12" width="125" height="24" rx="8"/>
+        <rect x="20" y="-12" width="125" height="24" rx="8"/>
+      </g>
+
+      <!-- Spoke end grips (small bulbs at tips) -->
+      <g fill="url(#vaultMid)" stroke="#1E293B" stroke-width="2">
+        <circle cx="0" cy="-145" r="14"/>
+        <circle cx="0" cy="145" r="14"/>
+        <circle cx="-145" cy="0" r="14"/>
+        <circle cx="145" cy="0" r="14"/>
+      </g>
+
+      <!-- Center hub -->
+      <circle cx="0" cy="0" r="42" fill="url(#vaultMid)" stroke="#1E293B" stroke-width="2.5"/>
+      <circle cx="0" cy="0" r="32" fill="url(#vaultOuter)"/>
+      <circle cx="0" cy="0" r="18" fill="#334155" stroke="#1E293B" stroke-width="1.5"/>
+      <circle cx="-5" cy="-5" r="6" fill="#F1F5F9" opacity="0.7"/>
+    </g>
+
+    <!-- Subtle highlight sweep across the door -->
+    <ellipse cx="-70" cy="-100" rx="130" ry="40" fill="#FFFFFF" opacity="0.12"/>
+  </g>
+</svg>

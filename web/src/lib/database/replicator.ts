@@ -1,37 +1,51 @@
 import { Replicator, type ReplicatorConfig, type ReplicatorCollectionConfig, type ReplicatorStatus } from "@couchbase/lite-js";
-import type { RetailDatabase } from "./types";
-
-// App Services configuration
-// Update this value with your actual App Services endpoint
-//export const APP_SERVICES_URL = "ws://localhost:4984/retail-inventory/_blipsync";
+import type { VaultDatabase } from "./types";
+import { getAppServicesUrl, getStoredCredentials } from "../auth";
 
 export interface ReplicatorOptions {
   continuous?: boolean;
+  username?: string;
+  password?: string;
   onStatusChange?: (status: ReplicatorStatus) => void;
   onError?: (error: Error) => void;
 }
 
 export function createReplicator(
-  db: RetailDatabase,
+  db: VaultDatabase,
+  tenantId: string,
   options: ReplicatorOptions = {}
 ): Replicator {
   const { continuous = false, onStatusChange, onError } = options;
 
-  // Collection configuration for sync
+  const credentials = getStoredCredentials();
+  const username = options.username || credentials?.email || "guest@local.com";
+  let password = options.password || credentials?.password || "Password123!";
+
+  if (password === "password" || password === "offline_password") {
+    password = "Password123!";
+  }
+
   const collectionConfig: ReplicatorCollectionConfig = {
     pull: { continuous },
     push: { continuous },
   };
 
-  const syncUrl = getAppServicesUrl();
-  console.log('📡 App Services URL:', syncUrl);
+  const syncUrl = getAppServicesUrl(tenantId);
+  console.log('📡 Syncing to App Services URL:', syncUrl, 'as user:', username);
 
-  const config: ReplicatorConfig = {
+  const scopeName = tenantId || "_default";
+
+  const config: any = {
     database: db,
     url: syncUrl,
+    credentials: {
+      username,
+      password,
+    },
     collections: {
-      inventory: collectionConfig,
-      orders: collectionConfig,
+      [`${scopeName}.documents`]: collectionConfig,
+      [`${scopeName}.folders`]: collectionConfig,
+      [`${scopeName}.annotations`]: collectionConfig,
     },
   };
 
@@ -42,7 +56,6 @@ export function createReplicator(
   }
 
   if (onError) {
-    // Handle errors during replication
     replicator.onStatusChange = (status: ReplicatorStatus) => {
       if (onStatusChange) onStatusChange(status);
 
@@ -55,18 +68,18 @@ export function createReplicator(
   return replicator;
 }
 
-// Helper function to start one-shot replication
-export async function syncOnce(db: RetailDatabase): Promise<void> {
-  const replicator = createReplicator(db, {
+export async function syncOnce(
+  db: VaultDatabase,
+  tenantId: string,
+  username?: string,
+  password?: string
+): Promise<void> {
+  const replicator = createReplicator(db, tenantId, {
     continuous: false,
+    username,
+    password,
     onStatusChange: (status) => {
       console.log(`Sync status: ${status.status}`);
-      if (status.pulledRevisions !== undefined) {
-        console.log(`Pulled ${status.pulledRevisions} documents`);
-      }
-      if (status.pushedRevisions !== undefined) {
-        console.log(`Pushed ${status.pushedRevisions} documents`);
-      }
     },
     onError: (error) => {
       console.error('Sync error:', error);
@@ -76,9 +89,8 @@ export async function syncOnce(db: RetailDatabase): Promise<void> {
   await replicator.run();
 }
 
-// Helper function to start continuous replication
-export function startContinuousSync(db: RetailDatabase): Replicator {
-  const replicator = createReplicator(db, {
+export function startContinuousSync(db: VaultDatabase, tenantId: string): Replicator {
+  const replicator = createReplicator(db, tenantId, {
     continuous: true,
     onStatusChange: (status) => {
       console.log(`Continuous sync status: ${status.status}`);
@@ -88,7 +100,6 @@ export function startContinuousSync(db: RetailDatabase): Replicator {
     },
   });
 
-  // Start replication in background
   void replicator.run();
 
   return replicator;

@@ -1,96 +1,76 @@
 import { type Database, type DatabaseConfig } from "@couchbase/lite-js";
 
-export interface InventoryItem {
+export interface VaultDocument {
   id: string;
-  docType: "Inventory";
-  productId: number;
-  sku: string;
+  docType: "Document";
   name: string;
-  brand: string;
-  category: string;
-  price: number;
-  unit: string;
-  stockQty: number;
-  location: {
-    aisle: number;
-    bin: number;
-  };
-  attributes: {
-    organic: boolean;
-    size: string;
-    perishable: boolean;
-  };
-  imageURL: string;
-  expirationDate: number;
-  lastUpdated: number;
-  storeId: string;
-  type: "inventory";
+  fileExtension: string;
+  mimeType: string;
+  size: number;
+  folderId?: string;
+  ownerId: string;
+  tenantId: string;
+  tags: string[];
+  status: "published" | "draft" | "archived";
+  version: number;
+  textContent?: string;
+  summary?: string;
+  contentCategory?: string;
+  matter?: string;
+  client?: string;
+  author?: string;
+  profileDocType?: string;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface Order {
+export interface Folder {
   id: string;
-  docType: "Order";
-  orderId: number;
-  storeId: string;
-  orderDate: number;
-  orderStatus: "Submitted" | "Received" | "In Review" | "Approved";
-  productId: number;
-  sku: string;
-  unit: string;
-  orderQty: number;
-  type: "order";
+  docType: "Folder";
+  name: string;
+  parentId?: string;
+  ownerId: string;
+  tenantId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface StoreProfile {
+export interface Annotation {
   id: string;
-  docType: "StoreProfile";
-  storeId: string;
-  name: string;
-  location: {
-    address1: string;
-    address2?: string | null;
-    locality: string;
-    region: string;
-    postalCode: string;
-    country: string;
-    coordinates?: {
-      lat: number;
-      lon: number;
-    };
-  };
-  contact: {
-    phone: string;
-    email: string;
-  };
-  manager?: string;
-  openingHours?: string;
-  type: "profile";
+  docType: "Annotation";
+  documentId: string;
+  tenantId: string;
+  authorId: string;
+  authorEmail?: string;
+  body: string;
+  page?: number;
+  resolved: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface DBSchema {
-  inventory: InventoryItem;
-  orders: Order;
-  profile: StoreProfile;
+  documents: VaultDocument;
+  folders: Folder;
+  annotations: Annotation;
 }
 
 /**
- * Create database configuration for a specific store
- * Collections are specified in {scope}.{collection} format
+ * Create database configuration for a specific tenant
  */
-export function createRetailConfig(storeId: string): DatabaseConfig<DBSchema> {
-  // Convert storeId to scope name: "nyc-store-01" → "NYC-Store"
-  const prefix = storeId.split('-')[0].toUpperCase();
-  const scopeName = `${prefix}-Store`;
+export function createVaultConfig(tenantId: string): DatabaseConfig<DBSchema> {
+  const scopeName = tenantId || "_default";
   
   return {
-    name: "retail-inventory",
-    version: 4,
+    name: "documentvault-local",
+    version: 7,
     collections: {
-      [`${scopeName}.inventory`]: {},
-      [`${scopeName}.orders`]: {},
-      [`${scopeName}.profile`]: {},
+      [`${scopeName}.documents`]: {},
+      [`${scopeName}.folders`]: {},
+      [`${scopeName}.annotations`]: {},
     },
   };
 }
 
-export type RetailDatabase = Database<DBSchema>;
+export type VaultDatabase = Database<DBSchema>;

@@ -1,33 +1,28 @@
 import { Database } from "@couchbase/lite-js";
-import { createRetailConfig } from "./types";
-import { getScopeNameFromStoreId } from "../auth";
+import { createVaultConfig } from "./types";
 
-export async function initializeDatabase(storeId: string) {
+export async function initializeDatabase(tenantId: string) {
   try {
-    console.log('Opening Couchbase Lite database for store:', storeId);
+    console.log('Opening Couchbase Lite database for tenant:', tenantId);
     
-    const config = createRetailConfig(storeId);
+    const config = createVaultConfig(tenantId);
     const db = await Database.open(config);
     
     console.log('✅ Database opened successfully');
 
-    // Get scope name for collection access
-    const scopeName = getScopeNameFromStoreId(storeId);
-    const inventoryCollectionName = `${scopeName}.inventory` as any;
-    const ordersCollectionName = `${scopeName}.orders` as any;
-    const profileCollectionName = `${scopeName}.profile` as any;
+    const scopeName = tenantId || "_default";
+    const documentsColName = `${scopeName}.documents` as any;
+    const foldersColName = `${scopeName}.folders` as any;
+    const annotationsColName = `${scopeName}.annotations` as any;
 
-    // Check current collection counts
-    const inventoryCount = await db.collections[inventoryCollectionName].count();
-    const ordersCount = await db.collections[ordersCollectionName].count();
-    const profileCount = await db.collections[profileCollectionName].count();
+    // Check current collection counts safely
+    const docCount = await db.collections[documentsColName]?.count() || 0;
+    const folderCount = await db.collections[foldersColName]?.count() || 0;
+    const annotationCount = await db.collections[annotationsColName]?.count() || 0;
     
-    console.log(`Current inventory count: ${inventoryCount}`);
-    console.log(`Current orders count: ${ordersCount}`);
-    console.log(`Current profile count: ${profileCount}`);
-
-    // Database starts empty and will be populated via App Services sync
-    console.log('📡 Database ready for sync. Data will be populated from App Services.');
+    console.log(`Current documents count: ${docCount}`);
+    console.log(`Current folders count: ${folderCount}`);
+    console.log(`Current annotations count: ${annotationCount}`);
 
     return db;
   } catch (error) {

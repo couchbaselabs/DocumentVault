@@ -1,8 +1,8 @@
-import type { RetailDatabase } from './types';
+import type { VaultDatabase } from './types';
 import { createContext, useContext, type ReactNode } from 'react';
 
 export interface DatabaseContext {
-  db: RetailDatabase;
+  db: VaultDatabase;
 }
 
 export const DatabaseContext = createContext<DatabaseContext | null>(null);
@@ -11,7 +11,7 @@ export function DatabaseProvider({
   db,
   children,
 }: {
-  db: RetailDatabase;
+  db: VaultDatabase;
   children: ReactNode;
 }) {
   return (

@@ -1,6 +1,91 @@
-# Couchbase Lite Retail Demo - iOS
+# Couchbase Lite DocumentVault - iOS
 
-A retail inventory management app for iOS demonstrating Couchbase Lite's offline-first capabilities, real-time sync with Capella App Services, and peer-to-peer sync between devices.
+An offline-first, secure document management vault (FileVault) for iOS demonstrating Couchbase Lite's vector search, hybrid search, real-time sync with Capella App Services, and peer-to-peer collaboration.
+
+---
+
+## 📂 DocumentVault Features & Architectural Updates
+
+### 🧠 Semantic & Hybrid Search Engines
+* **Vector Configuration**: The database vector index `vector_idx` has been optimized to use the `.cosine` (Cosine similarity) metric to align similarity search with the unit L2-normalized query and document vectors.
+* **Scanned Image Vectorization**: Removed image constraints from the embedding service to generate semantic text-based embeddings for image/camera documents based on their name, visual classification tags, and summary descriptors.
+* **Hybrid Search Integration**: Merges Full-Text Search (FTS) and vector retrieval using Reciprocal Rank Fusion (RRF) and leverages session-level Rocchio relevance feedback to dynamically adjust user query vectors.
+
+### 🌱 Seed Sample Dataset
+* Includes a precompiled corporate legal dataset ([document_vault_sample_dataset.json](../datasets/document_vault_sample_dataset.json)) featuring folders and metadata-rich records (NDAs, CEO tax filings, Deloitte audits, HR handbooks, DB specs).
+* Accessible from the **Developer Tools** section in [ProfileView.swift](./DocumentVault/ProfileView.swift), developers can trigger **"Seed Sample Corporate Data"** to automatically insert documents and folders and generate vector embeddings on-device on-the-fly.
+
+---
+
+## 🗺️ DocumentVault Development Roadmap
+
+### Phase 1: Foundation (Completed)
+* Local SQLite/Couchbase Lite schema for document metadata, folders, and custody events.
+* Local processing pipeline supporting PDF/TXT OCR, Vision categorization, and summaries.
+* Hybrid search with Rocchio query refinement and domain-based tenant scopes.
+
+### Phase 2: Enhanced Profiling (Immediate Next Steps)
+* Add custom NetDocuments-style profile metadata: `Client`, `Matter`, `Author`, and `Document Type`.
+* Implement parent-child validation rules (e.g., matching matter codes to specific client identifiers).
+
+### Phase 3: Sync & Peer-to-Peer Collaboration (Mid-Term)
+* Dynamic tenant-scoped sync configuration to Couchbase Capella cluster endpoints.
+* Peer-to-peer data replication over local networks using MultipeerConnectivity on iOS, with custom conflict resolution rules.
+
+### Phase 4: Compliance & Advanced Intelligence (Long-Term)
+* Cryptographically sign and hash document custody chain logs (uploads, reviews, downloads, edits).
+* Expose visual history timeline graphs for documents.
+* Implement a CoreML-based local transformer (e.g., legal-BERT) for highly specialized domain embeddings offline.
+
+---
+
+## 🏗️ System & Data Architecture
+
+### 1. Couchbase Server / Capella Database Topology
+The cloud backend stores data inside a single bucket mapped to dynamic corporate scopes representing tenants:
+```
+📦 DocumentVault (Bucket)
+├── 📁 acme-corp (Scope / Tenant ID)
+│   ├── 📚 documents (Collection: metadata, embeddings, FTS texts)
+│   ├── 📚 folders (Collection: folder configurations)
+│   ├── 📚 annotations (Collection: highlights and reviews)
+│   ├── 📚 profile (Collection: user/tenant settings)
+│   ├── 📚 senders (Collection: email/ingest identities)
+│   └── 📚 threads (Collection: conversation threads)
+```
+
+### 2. In-App Couchbase Lite Data Structure
+Couchbase Lite mirrors the Capella structure locally inside `DocumentVaultDB.cblite2` with optimized indexing for quick offline retrieval:
+* **Collections**:
+  * `documents`: Main model (`VaultDocument`) storing the document hash, text extraction `textContent`, LLM `summary`, 512-dimension vector `embedding`, and full append-only `custodyChain`.
+  * `folders`: Workspace hierarchies (`Folder`).
+  * `annotations`: User highlights/reviews (`Annotation`).
+* **Indexes**:
+  * `vector_idx`: Vector search index configured on the `embedding` property utilizing **Cosine similarity** (512 dimensions, centroids = 1). Vector embeddings are generated on-device from a combined target of the cleaned filename and the AI summary (or tag surrogate fallback for images), enabling highly precise semantic search targets.
+  * `fts_idx`: Full-Text Search index tracking `name`, `textContent`, `summary`, and `tags` to power keyword queries.
+  * `folder_idx`, `updated_idx`, `owner_idx`: Value indexes for fast folder hierarchy navigation.
+
+### 3. iOS Application Folder Structure
+```
+iOS/
+├── DocumentVault/
+│   ├── DocumentVaultApp.swift           # Application entry point (@main)
+│   ├── AppConfig.swift                 # Configuration & tenant resolver
+│   ├── DatabaseManager.swift           # Database lifecycle, indexes, and queries
+│   ├── SampleSeeder.swift              # Local corporate sample data seeder
+│   ├── DocumentProcessingPipeline.swift # Ingestion pipeline
+│   ├── EmbeddingManager.swift          # CoreML-based word/sentence vector extractor
+│   ├── EmbeddingService.swift          # Embedding routing interface
+│   ├── Views/
+│   │   ├── SearchView.swift            # Keyword & hybrid RRF search
+│   │   ├── FolderBrowserView.swift     # Hierarchy explorer
+│   │   └── ProfileView.swift           # User settings and developer tools
+│   └── Models/
+│       ├── VaultDocument.swift         # Metadata, custody chains, and status
+│       └── StoreProfile.swift          # Folders, annotations, and profiles
+```
+
+---
 
 ## Prerequisites
 

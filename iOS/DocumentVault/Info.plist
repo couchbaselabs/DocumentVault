@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CBL_BASE_URL</key>
+	<string>wss://gal7pf8dclbqfk.apps.cloud.couchbase.com:4984</string>
+	<key>CBL_DB</key>
+	<string>datavault-acmecorp</string>
+	<key>CBL_PASSWORD</key>
+	<string>Password123!</string>
+	<key>CBL_USER</key>
+	<string>austin@acmecorp.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.couchbase.DocumentVault</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>vault</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSBonjourServices</key>
+	<array>
+		<string></string>
+		<string>_couchbaseP2P._tcp</string>
+	</array>
+</dict>
+</plist>
