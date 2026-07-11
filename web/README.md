@@ -1,185 +1,73 @@
-# Couchbase Lite Retail Demo
+# DocumentVault Web Portal
 
-A modern retail inventory management application built with Couchbase Lite for web, featuring real-time sync capabilities with Couchbase Capella App Services.
+A secure, modern web dashboard and case portal for **DocumentVault**, built with React, TypeScript, and Vite. It integrates directly with **Couchbase Lite for JavaScript** to manage document lifecycles offline and synchronizes in real-time with cloud backend App Services on Couchbase Capella.
 
-## Features
+---
 
-- 📱 **Offline-First**: Full functionality without internet connection using Couchbase Lite
-- 🔄 **Real-Time Sync**: Automatic bidirectional sync with Couchbase Capella App Services
-- 🏪 **Multi-Store Support**: Manage inventory across multiple retail locations
-- 📦 **Inventory Management**: Track products, stock levels, and orders
-- 🎨 **Modern UI**: Built with React, TypeScript, and shadcn/ui components
-- 🔐 **Secure**: Store-based authentication and data isolation
+## 🚀 Key Features
 
-## Tech Stack
+*   **📊 Document & Matter Analytics**: Instantly displays total document counts, folder structures, and annotations retrieved from Couchbase Lite local collections.
+*   **📡 Real-Time Sync Indicators**: Integrates a live **Sync Status Badge** showing connection states (`Syncing`, `Synced`, `Sync Error` with hover diagnostics) by listening directly to replicator status events.
+*   **📡 Live Sync Activity Log**: Renders a scrolling, monospaced logs panel showing Couchbase Lite `onDocuments` push/pull transactions (packet sizes and collection names) in real-time.
+*   **💬 Local RAG Agent Chat**:
+    *   **Local Search Retrieval**: Performs fast, local TF-IDF document search on IndexedDB inside the browser to compile context.
+    *   **Synonym Expansion**: Automatically expands common litigation search terms (e.g. mapping `"Price Waterhouse Cooper"` to `"pwc"`) to retrieve the right files.
+    *   **LLM Choice**: Connects to **Google Gemini** or **OpenAI** APIs.
+    *   **Local LLM Integration (LM Studio / Ollama)**: Configurable endpoints to route prompt completions to local offline models (like Llama 3 on `http://localhost:1234/v1`).
+    *   **AI Tool Calling**: Resolves LLM bracket tags to execute database operations (`publish_document` or `add_annotation`) locally.
+    *   **Auto-Ingest Fallback**: If the agent is instructed to annotate a non-existent file, it automatically ingests a new draft document record first to keep the action successful.
+*   **🌱 Offline Sandbox Seeder**: Includes a developer seeding panel to immediately populate IndexedDB with mock folders and document nodes if starting without a Capella connection.
 
-- **Frontend**: React 18 + TypeScript + Vite
-- **UI Framework**: shadcn/ui + Tailwind CSS
-- **Database**: Couchbase Lite for JavaScript
-- **Sync**: Couchbase Capella App Services
-- **Icons**: Lucide React
-- **State Management**: TanStack Query
+---
 
-## Prerequisites
+## 🛠️ Tech Stack
 
-> [!IMPORTANT]
-> Before proceeding with the web app setup, you **must** complete the Capella backend configuration described in the [root README](../README.md). This includes creating a Capella cluster, deploying an App Service, setting up the bucket/scopes/collections, importing the sample dataset, creating App Endpoints and App Users, recording the public connection URL, and configuring CORS for the web app. If you skip these steps, the app will fail to authenticate and sync.
+*   **Frontend**: React 18 + TypeScript + Vite
+*   **UI System**: Tailwind CSS + Lucide Icons + Radix (via shadcn/ui)
+*   **Local Database**: `@couchbase/lite-js` (Dexie.js / IndexedDB storage)
+*   **State & Sync Management**: TanStack React Query + Replicator Event Dispatchers
 
-- **Node.js**
-    - **macOS**: Version 18 or higher ([install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating))
-    - **Windows**: [Windows Installer](https://nodejs.org/en/download) (Version 24.15 was tested)
-- **npm**: Comes with Node.js
-- **Couchbase Capella Account**: For App Services sync functionality
+---
 
-## Getting Started
+## 🏃 Prerequisites
 
-### 1. Clone the Repository
+1.  **Node.js**: Version 18 or higher.
+2.  **Couchbase Capella App Endpoint**: Ensure your App Services endpoint (`docvault-acmecorp`) is active and has enabled CORS origins:
+    *   **Allowed Origin**: `http://localhost:8081` (and/or `http://localhost:8080`)
+    *   **Login Origin**: `http://localhost:8081`
+    *   **Allowed Headers**: `Authorization, Content-Type`
+    *(No trailing slashes in CORS URLs!)*
 
+---
+
+## 📥 Setup & Installation
+
+### 1. Configure Environment
+Copy the example environment template:
 ```bash
-git clone https://github.com/couchbase-examples/couchbase-lite-retail-demo.git
-cd couchbase-lite-retail-demo/web
+cp .env.example .env
+```
+Ensure your Capella App Services WebSocket URL is defined:
+```env
+VITE_APP_SERVICES_URL=wss://your-endpoint-id.apps.cloud.couchbase.com:4984
 ```
 
 ### 2. Install Dependencies
-
 ```bash
 npm install
 ```
 
-Use the `--verbose` to troubleshoot any issues.
-
-### 3. Configure Environment
-
-Copy the example environment file and configure it with your Couchbase Capella settings:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and set your Couchbase App Services WebSocket URL:
-
-```env
-# Get this from your Capella App Services dashboard
-# Format: wss://your-endpoint.apps.cloud.couchbase.com:4984/database-name
-VITE_APP_SERVICES_URL=wss://your-endpoint.apps.cloud.couchbase.com:4984
-```
-
-**Where to find your WebSocket URL:**
-
-1. Log into [Couchbase Capella](https://cloud.couchbase.com/)
-2. Navigate to App Services
-3. Select your App Services endpoint
-4. Copy the complete WebSocket URL **EXCLUDING** the database path ('/supermarket-aa' or "/supermarket-nyc' will be automatically added inside the code, based on the user selection)
-   - Example: `wss://xxxxx.apps.cloud.couchbase.com`
-
-### 4. Start Development Server
-
+### 3. Start Development Server
 ```bash
 npm run dev
 ```
+By default, if port `8080` is occupied, Vite will serve the portal on **`http://localhost:8081`**.
 
-The output will look as follows. It indicates under which address/port the application is available, e.g. `http://localhost:8080`.
+---
 
-```
-  VITE v5.4.21  ready in 832 ms
+## 👤 Authentication
+Log in using your resolved tenant email profile matching Capella App Users:
+*   **Email**: `austin@acmecorp.com`
+*   **Password**: `Password123!`
 
-  ➜  Local:   http://localhost:8080/
-  ➜  Network: http://169.254.83.107:8080/
-  ➜  Network: http://192.168.0.158:8080/
-  ➜  Network: http://172.19.160.1:8080/
-```
-
-## Building for Production
-
-Build the optimized production bundle:
-
-```bash
-npm run build
-```
-
-The built files will be in the `dist/` directory.
-
-Preview the production build locally:
-
-```bash
-npm run preview
-```
-
-> [!NOTE]
-> This command will run the application on port 4173. You will have to update the App Services endpoints' CORS settings to include `http://localhost:4173` in order to be able to authenticate. You might want to refrain from doing so and just run `npm run dev` as described above.
-
-## Project Structure
-
-```
-web/
-├── src/
-│   ├── components/        # React components
-│   ├── lib/
-│   │   ├── database/      # Couchbase Lite database setup and types
-│   │   └── auth.ts        # Authentication helpers
-│   ├── pages/             # Page components
-│   └── App.tsx            # Main app component
-├── public/                # Static assets
-├── .env.example           # Environment variables template
-└── package.json           # Dependencies and scripts
-```
-
-## Authentication
-
-The app uses email-based authentication with the following format:
-- **Email**: `{store-id}@supermarket.com` (e.g., `nyc-store-01@supermarket.com`)
-- **Password**: As configured in your Capella App Services
-
-The store ID is extracted from the email and determines:
-
-- Which data scope the user has access to
-- Store-specific inventory and orders
-
-**Note:** The App Services URL configured in `.env` is used as-is without any modifications based on the store ID.
-
-## Configuration
-
-### Required Configuration
-
-- **`VITE_APP_SERVICES_URL`**: Complete WebSocket URL for your Capella App Services endpoint (including database path)
-
-### Application Settings (Fixed)
-
-The following are defined in the application code and don't need to be configured:
-
-- **Database Name**: `retail-inventory` (defined in `src/lib/database/types.ts`)
-- **Database Version**: `4` (defined in `src/lib/database/types.ts`)
-- **Collections**: `inventory`, `orders`, `profile`
-- **Scopes**: `AA-Store`, `NYC-Store` (automatically selected based on login)
-
-## Available Scripts
-
-- **`npm run dev`**: Start development server with hot reload
-- **`npm run build`**: Build for production
-- **`npm run preview`**: Preview production build locally
-- **`npm run lint`**: Run ESLint to check code quality
-
-## Troubleshooting
-
-### Sync Not Working
-
-- Verify your `VITE_APP_SERVICES_URL` is correct
-- Check that your App Services endpoint is running
-- Ensure your credentials are valid in Capella
-- Check browser console for error messages
-
-### Build Errors
-
-- Verbose logging: `npm install --verbose`
-- Clear node_modules
-    - **macOS**: `rm -rf node_modules && npm install`
-    - **Windows**: `rd /s /q node_modules`
-- Clear cache
-    - **macOS**: `rm -rf dist .vite`
-    - **Windows**: `rd /s /q dist .vite`
-- Ensure Node.js version is 18 or higher: `node --version`
-
-### TypeScript Errors
-
-- Run: `npm run build` to see all type errors
-- Ensure all dependencies are installed: `npm install`
+The domain resolver automatically maps `@acmecorp.com` to the Couchbase database scope `acmecorp` to establish secure sync partitions.

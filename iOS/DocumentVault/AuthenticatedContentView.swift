@@ -33,9 +33,15 @@ struct AuthenticatedContentView: View {
             ReportsView()
                 .tabItem { Label("Reports", systemImage: "chart.bar.doc.horizontal") }
                 .tag(4)
+                .badge(dbManager.unreadChangesCount)
         }
         .onAppear {
             dbManager.setupIndexes()
+        }
+        .onChange(of: selectedTab) { newValue in
+            if newValue == 4 {
+                dbManager.unreadChangesCount = 0
+            }
         }
     }
 }

@@ -44,15 +44,19 @@ async function bootstrap() {
     const credentials = getStoredCredentials();
     let db: VaultDatabase | null = null;
 
-    if (credentials) {
-      console.log('🔑 Found stored credentials for tenant:', credentials.tenantId);
-      db = await initializeDatabase(credentials.tenantId);
-      console.log('✅ Database initialized for', credentials.tenantId);
+    try {
+      if (credentials) {
+        console.log('🔑 Found stored credentials for tenant:', credentials.tenantId);
+        db = await initializeDatabase(credentials.tenantId);
+        console.log('✅ Database initialized for', credentials.tenantId);
 
-      console.log('🚀 Bootstrap: Starting continuous sync...');
-      await startContinuousSync(db);
-    } else {
-      console.log('📝 No stored credentials - database will initialize after login');
+        console.log('🚀 Bootstrap: Starting continuous sync...');
+        await startContinuousSync(db);
+      } else {
+        console.log('📝 No stored credentials - database will initialize after login');
+      }
+    } catch (initError) {
+      console.error('❌ Bootstrap database/sync initialization failed:', initError);
     }
 
     const rootElement = document.getElementById("root");
@@ -71,7 +75,7 @@ async function bootstrap() {
       );
     }
   } catch (error) {
-    console.error('❌ Bootstrap failed:', error);
+    console.error('❌ Critical bootstrap failure:', error);
   }
 }
 

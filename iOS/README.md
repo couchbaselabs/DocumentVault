@@ -24,15 +24,19 @@ An offline-first, secure document management vault (FileVault) for iOS demonstra
 * Local processing pipeline supporting PDF/TXT OCR, Vision categorization, and summaries.
 * Hybrid search with Rocchio query refinement and domain-based tenant scopes.
 
-### Phase 2: Enhanced Profiling (Immediate Next Steps)
-* Add custom NetDocuments-style profile metadata: `Client`, `Matter`, `Author`, and `Document Type`.
-* Implement parent-child validation rules (e.g., matching matter codes to specific client identifiers).
+### Phase 2: Enhanced Profiling (Completed)
+* Added custom NetDocuments-style profile metadata: `Client`, `Matter`, `Author`, and `Document Type` to local SQLite collections.
+* Implemented parent-child profile field validation logic in detail views.
+* Enabled case matter annotation vector steering, appending unresolved notes to document descriptions.
 
-### Phase 3: Sync & Peer-to-Peer Collaboration (Mid-Term)
-* Dynamic tenant-scoped sync configuration to Couchbase Capella cluster endpoints.
-* Peer-to-peer data replication over local networks using MultipeerConnectivity on iOS, with custom conflict resolution rules.
+### Phase 3: Sync & Multi-Platform (Completed)
+* Real-time tenant-scoped sync configuration to Couchbase Capella cluster endpoints (`docvault-acmecorp`).
+* Replicated 6 collections (documents, folders, annotations, user profile, senders, threads) in parallel.
+* Created web companion portal on port `8081` with live activity telemetry.
+* Enabled iPad RAG Chat tool calling to save annotations and publish local files directly from AI conversation.
 
-### Phase 4: Compliance & Advanced Intelligence (Long-Term)
+### Phase 4: Compliance & Advanced Intelligence (Long-Term / In-Progress)
+* **Audit Trail Custody Vectorization** (Completed): Document custody chain is appended to embedding text targets to make audit logs searchable via vector space.
 * Cryptographically sign and hash document custody chain logs (uploads, reviews, downloads, edits).
 * Expose visual history timeline graphs for documents.
 * Implement a CoreML-based local transformer (e.g., legal-BERT) for highly specialized domain embeddings offline.

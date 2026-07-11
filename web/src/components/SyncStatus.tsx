@@ -22,6 +22,7 @@ export function SyncStatus() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [syncState, setSyncState] = useState<SyncState>('idle');
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     const handleOnline = () => {
@@ -34,20 +35,36 @@ export function SyncStatus() {
       setSyncState('offline');
     };
 
+    const handleSyncStatus = (e: Event) => {
+      const status = (e as CustomEvent).detail;
+      const act = (status.status || status.activity || "").toLowerCase();
+      if (act === 'connecting' || act === 'syncing') {
+        setSyncState('syncing');
+      } else {
+        setSyncState('idle');
+        setLastSyncTime(new Date());
+        setErrorMsg(null);
+      }
+    };
+
+    const handleSyncError = (e: Event) => {
+      const error = (e as CustomEvent).detail;
+      setSyncState('error');
+      setErrorMsg(error.message || String(error));
+    };
+
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
-
-    // Check if sync is configured
-    const syncUrl = import.meta.env.VITE_APP_SERVICES_URL;
-    if (!syncUrl || !isOnline) {
-      setSyncState('offline');
-    }
+    window.addEventListener('cbl-sync-status', handleSyncStatus);
+    window.addEventListener('cbl-sync-error', handleSyncError);
 
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
+      window.removeEventListener('cbl-sync-status', handleSyncStatus);
+      window.removeEventListener('cbl-sync-error', handleSyncError);
     };
-  }, [isOnline]);
+  }, []);
 
   const getStatusConfig = () => {
     switch (syncState) {
@@ -89,10 +106,7 @@ export function SyncStatus() {
       return "You're offline. Changes will sync when you're back online.";
     }
     if (syncState === 'error') {
-      return "Sync error occurred. Check console for details.";
-    }
-    if (syncState === 'offline') {
-      return "Running in offline-only mode. Sync not configured.";
+      return errorMsg || "Sync error occurred. Check console for details.";
     }
     if (lastSyncTime) {
       return `Last synced: ${lastSyncTime.toLocaleTimeString()}`;

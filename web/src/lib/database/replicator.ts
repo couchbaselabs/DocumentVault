@@ -46,10 +46,28 @@ export function createReplicator(
       [`${scopeName}.documents`]: collectionConfig,
       [`${scopeName}.folders`]: collectionConfig,
       [`${scopeName}.annotations`]: collectionConfig,
+      [`${scopeName}.profile`]: collectionConfig,
+      [`${scopeName}.senders`]: collectionConfig,
+      [`${scopeName}.threads`]: collectionConfig,
     },
   };
 
   const replicator = new Replicator(config);
+
+  replicator.onDocuments = (collection, direction, documents) => {
+    console.log(`Replicated ${documents.length} docs in ${collection.name} (${direction})`);
+    window.dispatchEvent(new CustomEvent('cbl-sync-documents', {
+      detail: {
+        collection: collection.name,
+        direction,
+        documents: documents.map(d => ({
+          docID: d.docID,
+          deleted: d.deleted,
+          error: d.error?.message
+        }))
+      }
+    }));
+  };
 
   if (onStatusChange) {
     replicator.onStatusChange = onStatusChange;
@@ -94,13 +112,18 @@ export function startContinuousSync(db: VaultDatabase, tenantId: string): Replic
     continuous: true,
     onStatusChange: (status) => {
       console.log(`Continuous sync status: ${status.status}`);
+      window.dispatchEvent(new CustomEvent('cbl-sync-status', { detail: status }));
     },
     onError: (error) => {
       console.error('Continuous sync error:', error);
+      window.dispatchEvent(new CustomEvent('cbl-sync-error', { detail: error }));
     },
   });
 
-  void replicator.run();
+  replicator.run().catch((error: any) => {
+    console.warn('⚠️ Continuous replicator run failed or disconnected:', error.message);
+    window.dispatchEvent(new CustomEvent('cbl-sync-error', { detail: error }));
+  });
 
   return replicator;
 }

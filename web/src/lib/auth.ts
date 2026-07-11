@@ -32,6 +32,13 @@ export function extractTenantIdFromEmail(email: string): string {
 }
 
 export function getAppServicesUrl(tenantId: string): string {
+  const envUrl = import.meta.env.VITE_APP_SERVICES_URL;
+  if (envUrl) {
+    // Connect directly to Capella (requires CORS configuration on Capella)
+    return `${envUrl}/docvault-${tenantId}`;
+  }
+  
+  // Fallback to local proxy
   const isSecure = window.location.protocol === 'https:';
   const wsProtocol = isSecure ? 'wss:' : 'ws:';
   const host = window.location.host || 'localhost:8080';

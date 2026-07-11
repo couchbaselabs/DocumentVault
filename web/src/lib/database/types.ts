@@ -54,6 +54,9 @@ export interface DBSchema {
   documents: VaultDocument;
   folders: Folder;
   annotations: Annotation;
+  profile: any;
+  senders: any;
+  threads: any;
 }
 
 /**
@@ -69,6 +72,9 @@ export function createVaultConfig(tenantId: string): DatabaseConfig<DBSchema> {
       [`${scopeName}.documents`]: {},
       [`${scopeName}.folders`]: {},
       [`${scopeName}.annotations`]: {},
+      [`${scopeName}.profile`]: {},
+      [`${scopeName}.senders`]: {},
+      [`${scopeName}.threads`]: {},
     },
   };
 }

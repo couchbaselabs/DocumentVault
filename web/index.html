@@ -18,6 +18,50 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <!-- Direct screen logging to catch white-screen failures -->
+    <script>
+      function renderDiagnosticOverlay(title, detail, stack) {
+        var div = document.getElementById('diagnostic-error-overlay');
+        if (!div) {
+          div = document.createElement('div');
+          div.id = 'diagnostic-error-overlay';
+          div.style.position = 'fixed';
+          div.style.top = '0';
+          div.style.left = '0';
+          div.style.width = '100vw';
+          div.style.height = '100vh';
+          div.style.backgroundColor = '#fef2f2';
+          div.style.color = '#991b1b';
+          div.style.padding = '40px';
+          div.style.fontFamily = 'monospace';
+          div.style.fontSize = '14px';
+          div.style.zIndex = '999999';
+          div.style.overflow = 'auto';
+          div.style.whiteSpace = 'pre-wrap';
+          div.style.boxSizing = 'border-box';
+          document.body.appendChild(div);
+        }
+        div.innerHTML = '<h2 style="margin-top:0;font-size:20px;border-bottom:2px solid #fca5a5;padding-bottom:10px;">💥 Unhandled React/JavaScript Error:</h2>' +
+                        '<strong>Message:</strong> ' + title + '\n' +
+                        '<strong>Detail:</strong> ' + detail + '\n\n' +
+                        '<strong>Stack Trace:</strong>\n' + (stack || 'No stack trace available');
+      }
+
+      window.addEventListener('error', function(event) {
+        var msg = event.message || 'Unknown error';
+        var src = (event.filename || 'unknown_source') + ':' + (event.lineno || 0) + ':' + (event.colno || 0);
+        var stack = event.error ? event.error.stack : '';
+        renderDiagnosticOverlay(msg, src, stack);
+      });
+
+      window.addEventListener('unhandledrejection', function(event) {
+        var reason = event.reason || 'Unhandled Promise Rejection';
+        var msg = typeof reason === 'object' ? reason.message : reason;
+        var stack = reason instanceof Error ? reason.stack : '';
+        renderDiagnosticOverlay('Promise Rejection: ' + msg, 'Unhandled Rejection Event', stack);
+      });
+    </script>
   </head>
 
   <body>

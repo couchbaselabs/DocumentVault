@@ -98,7 +98,7 @@ const Inventory = () => {
     });
 
     return () => {
-      docListener?.then(tok => tok.remove());
+      docListener?.remove();
     };
   }, [navigate, db]);
 
@@ -113,7 +113,7 @@ const Inventory = () => {
     });
 
     return () => {
-      annListener?.then(tok => tok.remove());
+      annListener?.remove();
     };
   }, [selectedDoc]);
 
@@ -124,8 +124,10 @@ const Inventory = () => {
     setSubmittingAnn(true);
     try {
       const annId = `Ann_Web_${Math.random().toString(36).substring(2, 11)}`;
-      
-      const newAnn = {
+      const col = db.collections[annotationsColName];
+      if (!col) throw new Error("Annotations collection not found");
+
+      const doc = col.createDocument(annId, {
         id: annId,
         docType: "Annotation" as const,
         documentId: selectedDoc.id,
@@ -136,12 +138,10 @@ const Inventory = () => {
         resolved: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
-      };
-
-      const mutableDoc = new MutableDocument(annId, newAnn);
+      });
       
       // Save directly to the annotations collection in Couchbase Lite JS
-      await db.collections[annotationsColName].save(mutableDoc);
+      await col.save(doc);
 
       setNewAnnotationText("");
       toast.success("Case update annotation added!", {

@@ -394,12 +394,17 @@ struct ChatView: View {
         let systemPrompt = """
         You are an elite legal assistant and paralegal. Your role is to read, analyze, and synthesize secure database files to prepare summaries, briefs, and reports.
         
+        You have access to the following tools which you can invoke to interact with the local database:
+        - `publish_document(documentId)`: Publishes a document. Call this when the user asks to publish, release, or finalize a document.
+        - `add_annotation(documentId, note)`: Adds an annotation/note to a document. Call this when the user asks to add a note, comment, or annotation.
+        
         Reference the provided local document database context:
         \(context)
         
         Guidelines:
         1. Act like a highly competent legal professional. Be precise, formal, and objective.
-        2. For search questions, you MUST provide a well-structured brief. Separate each section with exactly TWO newlines (a blank line) so they render correctly in markdown:
+        2. When a user asks you to perform an action (like publishing or writing a note), you MUST invoke the corresponding tool.
+        3. For search questions, you MUST provide a well-structured brief. Separate each section with exactly TWO newlines (a blank line) so they render correctly in markdown:
            
            **Summary of Findings**
            [Provide the summary of findings here]
@@ -415,9 +420,7 @@ struct ChatView: View {
            - **Last Modified**: [date/time]
            - **Modified By**: [actor name]
            - **Actions**: [actions taken]
-        3. For metadata/custody questions, provide the exact audit trace details formatted as bullet points separated by double newlines.
-        4. Stick strictly to facts in the context. If the database does not contain the answer, state that clearly.
-        5. When referencing any document, you MUST include a clickable in-app markdown link to it using the exact format: [Document Name](vault://doc/document_id). Example: [Broderick Complaint](vault://doc/Doc_1234567890). This is critical so the user can click directly to view the document.
+        4. When referencing any document, you MUST include a clickable in-app markdown link to it using the exact format: [Document Name](vault://doc/document_id). Example: [Broderick Complaint](vault://doc/Doc_1234567890). This is critical so the user can click directly to view the document.
         """
         
         var request = URLRequest(url: url)
@@ -432,10 +435,52 @@ struct ChatView: View {
             ["role": "user", "content": prompt]
         ]
         
+        let publishTool: [String: Any] = [
+            "type": "function",
+            "function": [
+                "name": "publish_document",
+                "description": "Changes the status of a document to 'published'. Use this when the user asks to publish or release a document.",
+                "parameters": [
+                    "type": "object",
+                    "properties": [
+                        "documentId": [
+                            "type": "string",
+                            "description": "The exact ID of the document to publish (e.g. Doc_06A0A42E-29ED-4A17-A663-C8FC26589D36)."
+                        ]
+                    ],
+                    "required": ["documentId"]
+                ]
+            ]
+        ]
+        
+        let annotateTool: [String: Any] = [
+            "type": "function",
+            "function": [
+                "name": "add_annotation",
+                "description": "Adds a note/annotation comment to a document. Use this when the user asks to add a note, comment, or annotation to a document.",
+                "parameters": [
+                    "type": "object",
+                    "properties": [
+                        "documentId": [
+                            "type": "string",
+                            "description": "The exact ID of the document to annotate."
+                        ],
+                        "note": [
+                            "type": "string",
+                            "description": "The content of the note or comment to add."
+                        ]
+                    ],
+                    "required": ["documentId", "note"]
+                ]
+            ]
+        ]
+        
         let payload: [String: Any] = [
             "model": AppConfig.openAIModel,
             "messages": messagesPayload,
-            "temperature": 0.3
+            "temperature": 0.3,
+            "tools": [publishTool, annotateTool],
+            "tool_choice": "auto"
         ]
         
         guard let body = try? JSONSerialization.data(withJSONObject: payload) else {
@@ -454,12 +499,63 @@ struct ChatView: View {
             guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let choices = json["choices"] as? [[String: Any]],
                   let first = choices.first,
-                  let message = first["message"] as? [String: Any],
-                  let text = message["content"] as? String else {
+                  let message = first["message"] as? [String: Any] else {
                 return "Failed to parse completion payload from API response."
             }
             
-            return text
+            // Check for tool/function calls generated by LLM
+            if let toolCalls = message["tool_calls"] as? [[String: Any]], !toolCalls.isEmpty {
+                var toolExecutionLog = ""
+                for toolCall in toolCalls {
+                    guard let function = toolCall["function"] as? [String: Any],
+                          let name = function["name"] as? String,
+                          let argumentsStr = function["arguments"] as? String,
+                          let argData = argumentsStr.data(using: .utf8),
+                          let args = try? JSONSerialization.jsonObject(with: argData) as? [String: Any] else { continue }
+                    
+                    if name == "publish_document", let docId = args["documentId"] as? String {
+                        if var doc = try? dbManager.fetchDocument(id: docId) {
+                            doc.status = .published
+                            doc.updatedAt = Date()
+                            doc.custodyChain.append(CustodyEvent(
+                                actor: "AI Agent",
+                                action: .statusChanged,
+                                notes: "Document status updated to Published via RAG tool call."
+                            ))
+                            try? dbManager.saveDocument(doc)
+                            toolExecutionLog += "⚙️ **Tool Executed**: Successfully published [\(doc.name)](vault://doc/\(docId)).\n\n"
+                        } else {
+                            toolExecutionLog += "⚠️ **Tool Error**: Could not locate document ID \(docId).\n\n"
+                        }
+                    } else if name == "add_annotation",
+                              let docId = args["documentId"] as? String,
+                              let note = args["note"] as? String {
+                        if let doc = try? dbManager.fetchDocument(id: docId) {
+                            let annotation = Annotation(
+                                id: "Ann_Agent_\(UUID().uuidString.prefix(8).lowercased())",
+                                documentId: docId,
+                                tenantId: AppConfig.currentTenantId,
+                                authorId: "AI Agent",
+                                authorEmail: "ai-agent@acmecorp.com",
+                                body: note
+                            )
+                            try? dbManager.saveAnnotation(annotation)
+                            toolExecutionLog += "⚙️ **Tool Executed**: Added case note to [\(doc.name)](vault://doc/\(docId)): \"*\(note)*\".\n\n"
+                        } else {
+                            toolExecutionLog += "⚠️ **Tool Error**: Could not locate document ID \(docId) to annotate.\n\n"
+                        }
+                    }
+                }
+                
+                return toolExecutionLog.isEmpty ? "AI Agent executed tool calls, but no database changes occurred." : toolExecutionLog
+            }
+            
+            // Standard conversational response
+            if let text = message["content"] as? String {
+                return text
+            }
+            
+            return "No response received from model."
         } catch {
             return "Network API request failed: \(error.localizedDescription)"
         }

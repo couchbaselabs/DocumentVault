@@ -23,6 +23,7 @@ class DatabaseManager: ObservableObject {
 
     @Published var appServicesSyncManager: AppServicesSyncManager?
     @Published var isAppServicesEnabled: Bool = false
+    @Published var unreadChangesCount: Int = 0
 
     init() {
         AppConfig.printConfiguration()
@@ -173,6 +174,7 @@ class DatabaseManager: ObservableObject {
             }
             let token = col.addChangeListener { [weak self] change in
                 DispatchQueue.main.async {
+                    self?.unreadChangesCount += change.documentIDs.count
                     self?.objectWillChange.send()
                     NotificationCenter.default.post(name: notif, object: nil)
                     

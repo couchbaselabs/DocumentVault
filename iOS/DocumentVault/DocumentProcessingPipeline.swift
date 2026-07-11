@@ -393,6 +393,21 @@ actor DocumentProcessingPipeline {
             }
         }
 
+        // Influence embedding with custody chain audit log (actions, notes) for audit search & RAG
+        let custodyLogs = doc.custodyChain
+            .map { event in
+                var str = "\(event.actor) \(event.action.rawValue)"
+                if let notes = event.notes, !notes.isEmpty {
+                    str += " \(notes)"
+                }
+                return str
+            }
+            .joined(separator: " ")
+        if !custodyLogs.isEmpty {
+            embeddingText += " \(custodyLogs)"
+            print("⛓️ Added \(doc.custodyChain.count) custody events to embedding text target for \(docId)")
+        }
+
         if !embeddingText.trimmingCharacters(in: .whitespaces).isEmpty {
             let surrogate = ExtractedContent(text: embeddingText, pageCount: content.pageCount)
             await processEmbedding(for: docId, content: surrogate, db: db)
