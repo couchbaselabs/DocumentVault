@@ -5,9 +5,9 @@ This repository contains a multi-platform application built with [Couchbase Lite
 ---
 
 ## 📖 Reference Guides & Value Details
-To help run a live demonstration or understand the business value, review these interactive resources in the repository root:
-*   👉 **[Interactive Demonstration Guide (documentvault_demonstration_guide.html)](file:///Users/austin.gonyou/Downloads/Apps/CBDemoChallengeApp/documentvault_demonstration_guide.html)** — A step-by-step interactive script for presenting offline capabilities, hybrid searches, and multi-platform RAG chat syncing.
-*   👉 **[System Architecture & Value Detail Guide (documentvault_architecture.html)](file:///Users/austin.gonyou/Downloads/Apps/CBDemoChallengeApp/documentvault_architecture.html)** — A deep dive into the secure offline-first topology, vector index setups, and Couchbase Lite's technical business value.
+To help run a live demonstration or understand the business value, review these interactive resources in the `docs/` folder:
+*   👉 **[Interactive Demonstration Guide (docs/documentvault_demonstration_guide.html)](file:///Users/austin.gonyou/Downloads/Apps/CBDemoChallengeApp/docs/documentvault_demonstration_guide.html)** — A step-by-step interactive script for presenting offline capabilities, hybrid searches, and multi-platform RAG chat syncing.
+*   👉 **[System Architecture & Value Detail Guide (docs/documentvault_architecture.html)](file:///Users/austin.gonyou/Downloads/Apps/CBDemoChallengeApp/docs/documentvault_architecture.html)** — A deep dive into the secure offline-first topology, vector index setups, and Couchbase Lite's technical business value.
 
 ---
 
